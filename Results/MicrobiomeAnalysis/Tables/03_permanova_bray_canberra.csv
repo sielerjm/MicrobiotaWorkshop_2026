@@ -1,0 +1,3 @@
+"distance","term","r2","pseudo_f","p_value","p_value_display","significant"
+"Bray-Curtis","Treatment",0.524272378418919,19.8367771460842,1e-04,"1.00e-04","***"
+"Canberra","Treatment",0.258278956458569,6.26788366965694,1e-04,"1.00e-04","***"

@@ -1,0 +1,287 @@
+BioProject: PRJNA792398
+Mode: FULL
+Project directory: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026
+FASTQ root directory: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026/FASTQs
+FASTQ raw directory: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026/FASTQs/fastq_raw
+Log file: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026/logs/PRJNA792398__06.03.2026__20260306__144358.log
+FASTQ output format: compressed (.fastq.gz)
+Metadata subset file: Data/Metadata/GutMicrobiota_BeeTracking_metadata__TutorialSubset.csv
+WARNING: EDirect tools (esearch/efetch) not found; NCBI run-list fallback is unavailable.
+
+Collecting run accessions (ENA first, then NCBI fallback)...
+Loaded 33 unique normalized Sample_ID values from metadata.
+Full mode resume check: 0 run(s) already complete, 33 run(s) missing.
+Selected 33 run(s). Manifest: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026/run_accessions.txt
+
+[SRR17347458] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 4165k  100 4165k    0     0  10.0M      0 --:--:-- --:--:-- --:--:--  9.9M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3844k  100 3844k    0     0  8610k      0 --:--:-- --:--:-- --:--:-- 8620k
+
+[SRR17347479] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3798k  100 3798k    0     0  10.0M      0 --:--:-- --:--:-- --:--:-- 10.0M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3467k  100 3467k    0     0  10.9M      0 --:--:-- --:--:-- --:--:-- 11.0M
+
+[SRR17347586] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2457k  100 2457k    0     0  6902k      0 --:--:-- --:--:-- --:--:-- 6884k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2393k  100 2393k    0     0  7653k      0 --:--:-- --:--:-- --:--:-- 7672k
+
+[SRR17347630] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2288k  100 2288k    0     0  5564k      0 --:--:-- --:--:-- --:--:-- 5554k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2674k  100 2674k    0     0  8473k      0 --:--:-- --:--:-- --:--:-- 8491k
+
+[SRR17347637] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0 5723k    0 15750    0     0  58341      0  0:01:40 --:--:--  0:01:40 58333100 5723k  100 5723k    0     0  13.5M      0 --:--:-- --:--:-- --:--:-- 13.5M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 5201k  100 5201k    0     0  14.4M      0 --:--:-- --:--:-- --:--:-- 14.4M
+
+[SRR17347662] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0 1269k    0  7750    0     0  20167      0  0:01:04 --:--:--  0:01:04 20129100 1269k  100 1269k    0     0  2642k      0 --:--:-- --:--:-- --:--:-- 2640k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 1171k  100 1171k    0     0  4313k      0 --:--:-- --:--:-- --:--:-- 4324k
+
+[SRR17347666] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 7867k  100 7867k    0     0  17.8M      0 --:--:-- --:--:-- --:--:-- 17.8M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 7675k  100 7675k    0     0  20.3M      0 --:--:-- --:--:-- --:--:-- 20.4M
+
+[SRR17347415] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 16.2M  100 16.2M    0     0  38.2M      0 --:--:-- --:--:-- --:--:-- 38.2M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 15.3M  100 15.3M    0     0  38.6M      0 --:--:-- --:--:-- --:--:-- 38.7M
+
+[SRR17347455] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2465k  100 2465k    0     0  6530k      0 --:--:-- --:--:-- --:--:-- 6538k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2816k  100 2816k    0     0  8407k      0 --:--:-- --:--:-- --:--:-- 8432k
+
+[SRR17347484] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2934k  100 2934k    0     0  6946k      0 --:--:-- --:--:-- --:--:-- 6954k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3110k  100 3110k    0     0  9053k      0 --:--:-- --:--:-- --:--:-- 9067k
+
+[SRR17347494] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 5883k  100 5883k    0     0  12.7M      0 --:--:-- --:--:-- --:--:-- 12.7M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 5643k  100 5643k    0     0  16.3M      0 --:--:-- --:--:-- --:--:-- 16.4M
+
+[SRR17347513] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3168k  100 3168k    0     0  8391k      0 --:--:-- --:--:-- --:--:-- 8405k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3036k  100 3036k    0     0  8971k      0 --:--:-- --:--:-- --:--:-- 8984k
+
+[SRR17347541] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 13.7M  100 13.7M    0     0  28.0M      0 --:--:-- --:--:-- --:--:-- 28.1M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 16 13.4M   16 2320k    0     0  7036k      0  0:00:01 --:--:--  0:00:01 7030k100 13.4M  100 13.4M    0     0  31.3M      0 --:--:-- --:--:-- --:--:-- 31.2M
+
+[SRR17347548] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 6179k  100 6179k    0     0  13.4M      0 --:--:-- --:--:-- --:--:-- 13.4M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 5875k  100 5875k    0     0  15.5M      0 --:--:-- --:--:-- --:--:-- 15.4M
+
+[SRR17347566] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 6308k  100 6308k    0     0  15.5M      0 --:--:-- --:--:-- --:--:-- 15.5M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 6441k  100 6441k    0     0  7059k      0 --:--:-- --:--:-- --:--:-- 7055k
+
+[SRR17347587] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 6110k  100 6110k    0     0  14.6M      0 --:--:-- --:--:-- --:--:-- 14.6M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 5512k  100 5512k    0     0  16.3M      0 --:--:-- --:--:-- --:--:-- 16.3M
+
+[SRR17347628] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 64450  100 64450    0     0   349k      0 --:--:-- --:--:-- --:--:--  349k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 65881  100 65881    0     0   362k      0 --:--:-- --:--:-- --:--:--  363k
+
+[SRR17347631] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  4  9.7M    4  429k    0     0  1189k      0  0:00:08 --:--:--  0:00:08 1189k100  9.7M  100  9.7M    0     0  20.3M      0 --:--:-- --:--:-- --:--:-- 20.3M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  9.8M  100  9.8M    0     0  17.9M      0 --:--:-- --:--:-- --:--:-- 17.9M
+
+[SRR17347652] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 5228k  100 5228k    0     0  13.6M      0 --:--:-- --:--:-- --:--:-- 13.6M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 5458k  100 5458k    0     0  15.8M      0 --:--:-- --:--:-- --:--:-- 15.8M
+
+[SRR17347661] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 13.0M  100 13.0M    0     0  25.5M      0 --:--:-- --:--:-- --:--:-- 25.6M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 12.2M  100 12.2M    0     0  28.4M      0 --:--:-- --:--:-- --:--:-- 28.4M
+
+[SRR17347675] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 10.7M  100 10.7M    0     0  25.5M      0 --:--:-- --:--:-- --:--:-- 25.6M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 9389k  100 9389k    0     0  24.8M      0 --:--:-- --:--:-- --:--:-- 24.8M
+
+[SRR17347717] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0 3654k    0 15750    0     0  56821      0  0:01:05 --:--:--  0:01:05 56654100 3654k  100 3654k    0     0  9104k      0 --:--:-- --:--:-- --:--:-- 9089k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3743k  100 3743k    0     0  12.1M      0 --:--:-- --:--:-- --:--:-- 12.1M
+
+[SRR17347728] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 1961k  100 1961k    0     0  6281k      0 --:--:-- --:--:-- --:--:-- 6285k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 1859k  100 1859k    0     0  6036k      0 --:--:-- --:--:-- --:--:-- 6057k
+
+[SRR17347452] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 1705k  100 1705k    0     0  3969k      0 --:--:-- --:--:-- --:--:-- 3975k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 1755k  100 1755k    0     0  3832k      0 --:--:-- --:--:-- --:--:-- 3833k
+
+[SRR17347469] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 61  9.7M   61 6171k    0     0  14.0M      0 --:--:-- --:--:-- --:--:-- 14.0M100  9.7M  100  9.7M    0     0  21.1M      0 --:--:-- --:--:-- --:--:-- 21.1M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 10.0M  100 10.0M    0     0  24.2M      0 --:--:-- --:--:-- --:--:-- 24.3M
+
+[SRR17347475] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0 3879k    0 15750    0     0  78230      0  0:00:50 --:--:--  0:00:50 77970100 3879k  100 3879k    0     0  11.8M      0 --:--:-- --:--:-- --:--:-- 11.8M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3869k  100 3869k    0     0  11.2M      0 --:--:-- --:--:-- --:--:-- 11.2M
+
+[SRR17347485] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  4 6281k    4  288k    0     0   869k      0  0:00:07 --:--:--  0:00:07  867k100 6281k  100 6281k    0     0  14.6M      0 --:--:-- --:--:-- --:--:-- 14.6M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 6255k  100 6255k    0     0  17.0M      0 --:--:-- --:--:-- --:--:-- 17.1M
+
+[SRR17347501] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0 6541k    0 55750    0     0   178k      0  0:00:36 --:--:--  0:00:36  178k100 6541k  100 6541k    0     0  14.7M      0 --:--:-- --:--:-- --:--:-- 14.7M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 6003k  100 6003k    0     0  16.0M      0 --:--:-- --:--:-- --:--:-- 16.1M
+
+[SRR17347518] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  1 4693k    1 87750    0     0   217k      0  0:00:21 --:--:--  0:00:21  216k100 4693k  100 4693k    0     0  8578k      0 --:--:-- --:--:-- --:--:-- 8564k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 4951k  100 4951k    0     0  12.8M      0 --:--:-- --:--:-- --:--:-- 12.8M
+
+[SRR17347629] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2974k  100 2974k    0     0  8544k      0 --:--:-- --:--:-- --:--:-- 8523k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2780k  100 2780k    0     0  9031k      0 --:--:-- --:--:-- --:--:-- 9056k
+
+[SRR17347632] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2645k  100 2645k    0     0  7569k      0 --:--:-- --:--:-- --:--:-- 7558k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2518k  100 2518k    0     0  8603k      0 --:--:-- --:--:-- --:--:-- 8626k
+
+[SRR17347646] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2619k  100 2619k    0     0  7311k      0 --:--:-- --:--:-- --:--:-- 7317k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2740k  100 2740k    0     0  8528k      0 --:--:-- --:--:-- --:--:-- 8537k
+
+[SRR17347722] Downloading FASTQ from ENA...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 3929k  100 3929k    0     0  9233k      0 --:--:-- --:--:-- --:--:-- 9246k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 4531k  100 4531k    0     0  13.1M      0 --:--:-- --:--:-- --:--:-- 13.1M
+
+Ensuring FASTQ outputs remain compressed (.fastq.gz)...
+Cleaning temporary SRA cache...
+
+Download complete.
+Project directory: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026
+FASTQ root directory: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026/FASTQs
+FASTQ raw directory: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026/FASTQs/fastq_raw
+Log file: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts/../../Data/PRJNA792398__06.03.2026/logs/PRJNA792398__06.03.2026__20260306__144358.log

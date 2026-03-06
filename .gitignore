@@ -47,3 +47,18 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Workshop intermediate output directory
+cutadapt/
+
+# Raw/large sequencing inputs (not required for RDS-based workshop run)
+FASTQs/
+intermediate_fastq/
+fastq_symlinks__TutorialSubset/
+
+# macOS Finder metadata
+.DS_Store
+**/.DS_Store
+
+# Large reference DB (download locally when needed)
+Data/Databases/silva_nr99_v138.2_toSpecies_trainset.fa.gz

@@ -1,0 +1,617 @@
+Microbiome Workshop Tutorial VM Run Log
+Created by: Michael Sieler
+Last updated: 2026-03-06
+Run started: 2026-03-06 12:02:22
+
+[2026-03-06 12:02:22] R version: R version 4.5.1 (2025-06-13)
+[2026-03-06 12:02:22] Working directory: /Volumes/s-genev-liberti/users/Sieler/Projects/MicrobiotaWorkshop_2026/Code/Scripts
+[2026-03-06 12:02:26] ERROR: Error in file(file, "rt") : cannot open the connection
+Calls: read.csv -> read.table -> file
+
+[2026-03-06 12:02:26] ERROR: Error: object 'metadata_tbl' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'metadata_tbl' not found
+
+[2026-03-06 12:02:26] ERROR: Error in dplyr::filter(., .data$sample_id %in% metadata_tbl$Sample_ID) : 
+Caused by error:
+! object 'metadata_tbl' not found
+Calls: %>% ... %in% -> .handleSimpleError -> h -> abort -> signal_abort
+
+[2026-03-06 12:02:26] ERROR: Error: object 'samplesheet' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'samplesheet' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'samplesheet' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'fnFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'fnRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'fnFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'fnRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'quality_F' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'quality_R' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'fnFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'test_seqs_R1' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'test_seqs_R1' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'R1_matches' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'fnRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'test_seqs_R2' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'R2_matches' not found
+
+[2026-03-06 12:02:26] ERROR: Error in paste0(sample.names, "_F_filt.fastq.gz") : 
+  cannot coerce type 'closure' to vector of type 'character'
+Calls: file.path -> paste0
+
+[2026-03-06 12:02:26] ERROR: Error in paste0(sample.names, "_R_filt.fastq.gz") : 
+  cannot coerce type 'closure' to vector of type 'character'
+Calls: file.path -> paste0
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'fnFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'out' not found
+
+[2026-03-06 12:02:26] ERROR: Error in eval(expr, p) : object 'out' not found
+Calls: <Anonymous> ... eval -> <Anonymous> -> is.data.frame -> as.data.frame
+
+[2026-03-06 12:02:26] ERROR: Error: object 'out' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'zero_reads' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'out' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'test_filt_R1' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'R1_filt_matches' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'test_filt_R2' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'R2_filt_matches' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'errF' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'errR' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'errF' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'plotFerr' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'filtFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'dadaFs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'dadaRs' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'mergers' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'mergers' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab.nochim' not found
+
+[2026-03-06 12:02:26] ERROR: Error: object 'seqtab' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'seqtab.nochim' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'seqtab.nochim' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'sample.names.filt' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'track_samples' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'track_idx' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'track_samples' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'track' not found
+
+[2026-03-06 12:02:27] ERROR: Error in eval(expr, p) : object 'track' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:27] ERROR: Error: object 'track' not found
+
+[2026-03-06 12:02:27] ERROR: Error: SILVA taxonomy database not found at: ../Data/Databases/silva_nr99_v138.2_toSpecies_trainset.fa.gz
+
+[2026-03-06 12:02:27] ERROR: Error: object 'seqtab.nochim' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'taxa' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'taxa' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'taxa.print' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'taxa.print' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'seqtab.nochim' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'taxa' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'otu_table': object 'seqtab.nochim.full' not found
+Calls: <Anonymous> -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'sample_names': object 'ps' not found
+Calls: normalize_sample_id -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'taxa_names': object 'ps' not found
+Calls: data.frame -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'names_df' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'names_df' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'ntaxa': object 'ps' not found
+Calls: cat -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in file(file, "rt") : cannot open the connection
+Calls: read.csv -> read.table -> file
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'sample_names': object 'ps' not found
+Calls: normalize_sample_id -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'sample_ids_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'missing_ids' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'meta_qc' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'meta_qc' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'otu_table': object 'ps' not found
+Calls: <Anonymous> -> otu_table -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'read_depth' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'depth_df' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'read_depth' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'samples' in selecting a method for function 'prune_samples': error in evaluating the argument 'object' in selecting a method for function 'otu_table': object 'ps' not found
+Calls: %>% ... otu_table -> .handleSimpleError -> h -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'nsamples': object 'ps.pruned' not found
+Calls: cat -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps.pruned' not found
+Calls: cat -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps.pruned' not found
+Calls: cat -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'ps.pruned' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'ntaxa': object 'ps.pruned' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'n_start' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'ntaxa': object 'ps.pruned' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'otu_table': object 'ps.pruned' not found
+Calls: apply -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'prevalence' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'taxa' in selecting a method for function 'prune_taxa': object 'keep_taxa' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'n_before' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'ntaxa': object 'ps.filt' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'tax_table': object 'ps.filt' not found
+Calls: %>% ... <Anonymous> -> tax_table -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'n_before' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'ntaxa': object 'ps.filt' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'tax_table': object 'ps.filt' not found
+Calls: %>% ... <Anonymous> -> tax_table -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'n_before' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'ntaxa': object 'ps.filt' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'n_start' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'ps.filt' not found
+
+[2026-03-06 12:02:27] ERROR: Error in file(file, "rt") : cannot open the connection
+Calls: read.csv -> read.table -> file
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'sample_names': object 'ps.filt' not found
+Calls: normalize_sample_id -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'sample_ids_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'missing_ids' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'metadata' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'metadata' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps.filt' not found
+Calls: data.frame -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'sample_meta_df' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'samples' in selecting a method for function 'prune_samples': object 'control_flags' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'nsamples': object 'ps.filt' not found
+Calls: cat -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'ps.filt' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps.filt' not found
+Calls: data.frame -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in eval(expr, p) : object 'sample_meta_df' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:27] ERROR: Error: object 'ps.filt' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'otu_table': object 'ps.filt' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'tax_table': object 'ps.filt' not found
+Calls: head -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps.filt' not found
+Calls: head -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: `ps.filt` not found. Run Part 1 first (through 'add-metadata').
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'bee_ps' not found
+Calls: data.frame -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_meta' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_meta' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'bee_meta' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'otu_table': object 'bee_ps' not found
+Calls: <Anonymous> -> otu_table -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'depth' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'depth' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'bee_ps' not found
+Calls: %>% ... data.frame -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'depth_df' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'depth_df' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_genus' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_genus' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'top_genera' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'top_genera' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'genus_palette' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_genus' not found
+
+[2026-03-06 12:02:27] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'bee_ps' not found
+Calls: %>% ... data.frame -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:27] ERROR: Error: object 'copy_df' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_div' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_div' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_div' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_long' not found
+
+[2026-03-06 12:02:27] ERROR: Error in eval(expr, p) : object 'alpha_div' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:27] ERROR: Error in eval(expr, p) : object 'alpha_long' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_long' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_div' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_div' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'alpha_div' not found
+
+[2026-03-06 12:02:27] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:27] ERROR: Error in FUN(X[[i]], ...) : object 'beta_ps' not found
+Calls: lapply ... <Anonymous> -> isDistCalcDataPhyloseq -> <Anonymous>
+
+[2026-03-06 12:02:28] ERROR: Error: object 'beta_ps' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'pcoa_plot_list' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:28] ERROR: Error in FUN(X[[i]], ...) : object 'beta_ps' not found
+Calls: lapply ... <Anonymous> -> isDistCalcDataPhyloseq -> <Anonymous>
+
+[2026-03-06 12:02:28] ERROR: Error: object 'permanova_tbl_list' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'permanova_tbl' not found
+
+[2026-03-06 12:02:28] ERROR: Error in eval(expr, p) : object 'permanova_tbl' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:28] ERROR: Error: object 'permanova_tbl' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'bee_ps' not found
+
+[2026-03-06 12:02:28] ERROR: Error in FUN(X[[i]], ...) : object 'beta_ps' not found
+Calls: lapply ... <Anonymous> -> isDistCalcDataPhyloseq -> <Anonymous>
+
+[2026-03-06 12:02:28] ERROR: Error: object 'dispersion_tbl_list' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'dispersion_tbl' not found
+
+[2026-03-06 12:02:28] ERROR: Error in eval(expr, p) : object 'dispersion_tbl' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:28] ERROR: Error: object 'dispersion_tbl' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'permanova_tbl' not found
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'otu_table': object 'bee_ps' not found
+Calls: as -> .class1 -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'taxa_are_rows': object 'bee_ps' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error: object 'otu_mat' not found
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'bee_ps' not found
+Calls: <Anonymous> ... as -> .class1 -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'physeq' in selecting a method for function 'taxa_names': object 'bee_ps' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error: object 'meta_dt' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'otu_dt' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'otu_mat' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'prevalence_pct' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'otu_mat' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'taxa_ids' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'keep_for_da' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'full_dt' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'treatment_levels' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'treatment_levels' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'comparison_groups' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'full_dt' not found
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'samples' in selecting a method for function 'prune_samples': error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'bee_ps' not found
+Calls: <Anonymous> ... <Anonymous> -> .handleSimpleError -> h -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'taxa' in selecting a method for function 'prune_taxa': error in evaluating the argument 'physeq' in selecting a method for function 'taxa_names': object 'ps_da' not found
+Calls: <Anonymous> ... <Anonymous> -> .handleSimpleError -> h -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps_da' not found
+Calls: data.frame -> <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error: object 'ps_da_meta' not found
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps_da_meta' not found
+Calls: <Anonymous> -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'object' in selecting a method for function 'sample_data': object 'ps_da' not found
+Calls: <Anonymous> -> sample_data -> .handleSimpleError -> h
+
+[2026-03-06 12:02:28] ERROR: Error: object 'deseq_dds' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'deseq_dds' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'deseq_res' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'deseq_df' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'sig_taxa' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'deseq_dds' not found
+
+[2026-03-06 12:02:28] ERROR: Error in eval(expr, p) : object 'deseq_df' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:28] ERROR: Error in eval(expr, p) : object 'sig_taxa' not found
+Calls: <Anonymous> ... eval.parent -> eval -> eval -> <Anonymous> -> is.data.frame
+
+[2026-03-06 12:02:28] ERROR: Error: object 'sig_taxa' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'sig_taxa' not found
+
+[2026-03-06 12:02:28] ERROR: Error: object 'sig_taxa' not found
+
+[2026-03-06 12:02:28] Object check: MISSING -> ps.filt, bee_ps, permanova_tbl, dispersion_tbl, deseq_df, sig_taxa
+[2026-03-06 12:02:28] Output check: missing 37 expected files
+[2026-03-06 12:02:28] Missing outputs: ../Data/DADA2/01_filterAndTrim_out.rds | ../Data/DADA2/02_errF.rds | ../Data/DADA2/03_errR.rds | ../Data/DADA2/04_dadaFs.rds | ../Data/DADA2/05_dadaRs.rds | ../Data/DADA2/06_mergers.rds | ../Data/DADA2/07_seqtab.rds | ../Data/DADA2/08_seqtab_nochim.rds | ../Data/DADA2/09_taxa.rds | ../Data/DADA2/10_ps_initial.rds | ../Data/DADA2/11_asv_name_map.rds | ../Data/DADA2/12_ps_pruned.rds | ../Data/DADA2/13_ps_filt_pre_metadata.rds | ../Data/DADA2/14_ps_filt_final.rds | ../Results/DADA2/Tables/01_filterAndTrim_summary.csv | ../Results/DADA2/Tables/02_read_tracking_table.csv | ../Results/DADA2/Tables/03_sample_metadata_after_control_filter.csv | ../Results/DADA2/Tables/04_mock_accuracy_summary.csv | ../Results/DADA2/Tables/05_mock_asvs_with_taxonomy_and_match_flag.csv | ../Data/MicrobiomeAnalysis/01_bee_ps_start.rds | ../Data/MicrobiomeAnalysis/03_bee_genus.rds | ../Data/MicrobiomeAnalysis/04_alpha_div.rds | ../Data/MicrobiomeAnalysis/05_alpha_long.rds | ../Data/MicrobiomeAnalysis/06_beta_distance_setup.rds | ../Data/MicrobiomeAnalysis/07_permanova_results_bray_canberra.rds | ../Data/MicrobiomeAnalysis/08_dispersion_results_bray_canberra.rds | ../Data/MicrobiomeAnalysis/10_da_setup_objects.rds | ../Data/MicrobiomeAnalysis/11_da_deseq2_results.rds | ../Data/MicrobiomeAnalysis/12_da_plot_dt.rds | ../Data/MicrobiomeAnalysis/13_heatmap_dt.rds | ../Results/MicrobiomeAnalysis/Tables/01_alpha_diversity_table.csv | ../Results/MicrobiomeAnalysis/Tables/02_alpha_diversity_long.csv | ../Results/MicrobiomeAnalysis/Tables/03_permanova_bray_canberra.csv | ../Results/MicrobiomeAnalysis/Tables/04_betadisper_bray_canberra.csv | ../Results/MicrobiomeAnalysis/Tables/04_da_deseq2_all_taxa.csv | ../Results/MicrobiomeAnalysis/Tables/05_da_significant_taxa.csv | ../Results/MicrobiomeAnalysis/Tables/06_da_significant_taxa_with_taxonomy.csv
+[2026-03-06 12:02:28] Run finished: 2026-03-06 12:02:28
+[2026-03-06 12:02:28] Total elapsed seconds: 5.82
+[2026-03-06 12:02:28] Log file: ../Logs/Microbiome_Workshop_Tutorial__run__20260306_120222.log

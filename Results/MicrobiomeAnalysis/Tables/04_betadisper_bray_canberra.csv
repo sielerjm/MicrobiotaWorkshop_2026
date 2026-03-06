@@ -1,0 +1,3 @@
+"distance","f_value","p_value","group_mean_distance","p_value_display","significant"
+"Bray-Curtis",0.982023217723009,0.334835097372666,"CL: 0.395; MD: 0.325","3.35e-01","ns"
+"Canberra",23.4468535798535,0.000130791171150005,"CL: 0.463; MD: 0.593","1.31e-04","***"

@@ -1,0 +1,3014 @@
+# Microbiome_Workshop_Tutorial.R
+# Created by: Michael Sieler
+# Last updated: 2026-03-06
+# Description: Script version of Microbiome_Workshop_Tutorial.Rmd for VM test runs.
+# Expected input: Tutorial data and metadata under Data plus required R packages.
+# Expected output: Analysis files under Results and run diagnostics under Logs.
+# NOTE: Analytical code below is auto-generated from the .Rmd via knitr::purl.
+#       Only debugging, testing, and timing scaffolding is added in this .R file.
+
+# ---- Debugging / timing harness ----
+ws_script_start_time <- Sys.time()
+
+# Resolve project root to the directory containing the .Rproj file.
+resolve_project_root <- function() {
+  wd <- getwd()
+  candidate_roots <- c(
+    wd,
+    file.path(wd, ".."),
+    file.path(wd, "..", ".."),
+    file.path(wd, "..", "..", "..")
+  )
+  candidate_roots <- unique(normalizePath(candidate_roots, winslash = "/", mustWork = FALSE))
+
+  has_rproj <- vapply(
+    candidate_roots,
+    function(path) {
+      file.exists(file.path(path, "MicrobiotaWorkshop_2026.Rproj"))
+    },
+    FUN.VALUE = logical(1)
+  )
+
+  if (!any(has_rproj)) {
+    stop(
+      "Could not locate tutorial project root from working directory: ", wd,
+      ". Expected a parent directory containing 'MicrobiotaWorkshop_2026.Rproj'."
+    )
+  }
+
+  candidate_roots[which(has_rproj)[1]]
+}
+
+project_root_dir <- resolve_project_root()
+ws_logs_dir <- file.path(project_root_dir, "Logs")
+dir.create(ws_logs_dir, recursive = TRUE, showWarnings = FALSE)
+ws_run_id <- format(ws_script_start_time, "%Y%m%d_%H%M%S")
+ws_log_file <- file.path(ws_logs_dir, paste0("Microbiome_Workshop_Tutorial__run__", ws_run_id, ".log"))
+ws_chunk_timing_file <- file.path(ws_logs_dir, paste0("Microbiome_Workshop_Tutorial__chunk_timings__", ws_run_id, ".csv"))
+
+ws_log <- function(msg) {
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  line <- paste0("[", timestamp, "] ", msg)
+  cat(line, "\n")
+  write(line, file = ws_log_file, append = TRUE)
+}
+
+
+ws_chunk_name <- NULL
+ws_chunk_start_time <- NULL
+ws_chunk_timings <- data.frame(
+  chunk = character(),
+  started_at = character(),
+  finished_at = character(),
+  elapsed_sec = numeric(),
+  status = character(),
+  stringsAsFactors = FALSE
+)
+
+ws_chunk_begin <- function(chunk_name) {
+  now <- Sys.time()
+
+  # Close previous chunk if one is still open.
+  if (!is.null(ws_chunk_name) && !is.null(ws_chunk_start_time)) {
+    elapsed_prev <- as.numeric(difftime(now, ws_chunk_start_time, units = "secs"))
+    ws_chunk_timings <<- rbind(
+      ws_chunk_timings,
+      data.frame(
+        chunk = ws_chunk_name,
+        started_at = format(ws_chunk_start_time, "%Y-%m-%d %H:%M:%S"),
+        finished_at = format(now, "%Y-%m-%d %H:%M:%S"),
+        elapsed_sec = round(elapsed_prev, 2),
+        status = "OK",
+        stringsAsFactors = FALSE
+      )
+    )
+    ws_log(paste0("CHUNK_END | ", ws_chunk_name, " | status=OK | elapsed_sec=", sprintf("%.2f", elapsed_prev)))
+  }
+
+  ws_chunk_name <<- chunk_name
+  ws_chunk_start_time <<- now
+  ws_log(paste0("CHUNK_START | ", chunk_name))
+}
+
+ws_chunk_end <- function(status = "OK") {
+  if (is.null(ws_chunk_name) || is.null(ws_chunk_start_time)) {
+    return(invisible(NULL))
+  }
+
+  now <- Sys.time()
+  elapsed <- as.numeric(difftime(now, ws_chunk_start_time, units = "secs"))
+  ws_chunk_timings <<- rbind(
+    ws_chunk_timings,
+    data.frame(
+      chunk = ws_chunk_name,
+      started_at = format(ws_chunk_start_time, "%Y-%m-%d %H:%M:%S"),
+      finished_at = format(now, "%Y-%m-%d %H:%M:%S"),
+      elapsed_sec = round(elapsed, 2),
+      status = status,
+      stringsAsFactors = FALSE
+    )
+  )
+
+  ws_log(paste0("CHUNK_END | ", ws_chunk_name, " | status=", status, " | elapsed_sec=", sprintf("%.2f", elapsed)))
+  ws_chunk_name <<- NULL
+  ws_chunk_start_time <<- NULL
+}
+
+writeLines(
+  c(
+    "Microbiome Workshop Tutorial VM Run Log",
+    "Created by: Michael Sieler",
+    paste0("Last updated: 2026-03-06"),
+    paste0("Run started: ", format(ws_script_start_time, "%Y-%m-%d %H:%M:%S")),
+    ""
+  ),
+  con = ws_log_file
+)
+
+options(warn = 1)
+options(error = function() {
+  ws_chunk_end(status = "ERROR")
+  ws_log(paste0("ERROR: ", geterrmessage()))
+  traceback(3)
+})
+
+ws_log(paste0("R version: ", R.version.string))
+ws_log(paste0("Working directory: ", getwd()))
+ws_log(paste0("Project root: ", project_root_dir))
+
+#' ---
+#' title: "2-Hour Microbiome Analysis Workshop: From Raw Reads to Biological Insight"
+#' author: "Michael Sieler"
+#' date: "Last updated: `r Sys.Date()`"
+#' output:
+#'   html_document:
+#'     number_sections: true
+#'     toc: true
+#'     toc_float: true
+#'     toc_depth: 3
+#'     theme: flatly
+#'     code_folding: show
+#'     df_print: paged
+#' ---
+#' 
+## ----setup, include=FALSE-----------------------------------------------------
+ws_chunk_begin("setup")
+# Set default options for all code chunks in this document
+knitr::opts_chunk$set(
+  echo    = TRUE,     # Show code in the rendered output
+  eval    = TRUE,     # Actually run the code (set FALSE to show but not execute)
+  warning = FALSE,    # Suppress warning messages in the output
+  message = FALSE,    # Suppress package loading messages in the output
+  cache   = TRUE,     # Cache results so re-knitting is faster (skips unchanged chunks)
+  dpi     = 150,      # Resolution for rendered figures (dots per inch)
+  fig.width  = 8,     # Default figure width in inches
+  fig.height = 5,     # Default figure height in inches
+  out.width  = "95%"  # Scale figures to 95% of the page width in the HTML output
+)
+
+# Central output folders for tutorial artifacts.
+results_base_dir <- file.path(project_root_dir, "Results")
+dada2_output_dir <- file.path(results_base_dir, "DADA2")
+microbiome_output_dir <- file.path(results_base_dir, "MicrobiomeAnalysis")
+data_base_dir <- file.path(project_root_dir, "Data")
+
+dada2_fig_dir <- file.path(dada2_output_dir, "Figures")
+dada2_tbl_dir <- file.path(dada2_output_dir, "Tables")
+microbiome_fig_dir <- file.path(microbiome_output_dir, "Figures")
+microbiome_tbl_dir <- file.path(microbiome_output_dir, "Tables")
+
+resolve_dataset_dir <- function(data_root, bioproject = "PRJNA792398") {
+  candidates <- list.dirs(data_root, full.names = TRUE, recursive = FALSE)
+  pattern <- paste0("^", bioproject, "__[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$")
+  candidates <- candidates[grepl(pattern, basename(candidates))]
+
+  if (length(candidates) == 0) {
+    stop(
+      "No dataset directory found under ", data_root,
+      " matching ", bioproject, "__DD.MM.YYYY"
+    )
+  }
+
+  candidates[which.max(file.info(candidates)$mtime)]
+}
+
+dir.create(dada2_fig_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(dada2_tbl_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(microbiome_fig_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(microbiome_tbl_dir, recursive = TRUE, showWarnings = FALSE)
+
+# Part 1 figures default to Results/DADA2/Figures
+knitr::opts_chunk$set(fig.path = file.path(dada2_fig_dir, "fig-"))
+
+#' 
+#' # PART 1: From Raw FastQ to ASV Table {.tabset}
+#' 
+#' ## Introduction: What Are We Doing and Why?
+#' 
+#' Microbiome studies aim to characterize the microbial communities living in or on
+#' a host, environment, or ecosystem. The **16S ribosomal RNA gene** is the most
+#' widely used phylogenetic marker for bacteria and archaea because it contains both
+#' highly conserved regions (enabling universal primer binding) and hypervariable
+#' regions (V1--V9) that provide taxonomic discrimination.
+#' 
+#' In this workshop, we will process raw Illumina paired-end sequencing data through
+#' the **DADA2** pipeline to generate a table of **Amplicon Sequence Variants
+#' (ASVs)** with taxonomy assignments, then analyze the resulting communities.
+#' 
+#' **The pipeline at a glance:**
+#' 
+#' ```
+#' Raw paired-end reads (FastQ)
+#'     │
+#'     ▼
+#' Quality inspection ──► Primer removal (cutadapt / DADA2 trimLeft)
+#'     │
+#'     ▼
+#' Quality filtering (DADA2 filterAndTrim)
+#'     │
+#'     ▼
+#' Error model learning ──► Denoising (ASV inference)
+#'     │
+#'     ▼
+#' Paired-read merging ──► Chimera removal
+#'     │
+#'     ▼
+#' ASV table ──► Taxonomy assignment (SILVA)
+#'     │
+#'     ▼
+#' Contaminant identification (decontam)
+#'     │
+#'     ▼
+#' Taxa filtering (non-target, unresolved, low-prevalence)
+#'     │
+#'     ▼
+#' Phyloseq object
+#' ```
+#' 
+#' ### ASVs vs. OTUs
+#' 
+#' Historically, amplicon sequences were clustered into **Operational Taxonomic
+#' Units (OTUs)** at 97% identity---a pragmatic but arbitrary threshold that
+#' masks real biological variation and is not reproducible across studies.
+#' 
+#' **ASVs** use statistical error models to resolve exact biological sequences.
+#' They are:
+#' 
+#' - **Higher resolution** --- can distinguish sequences differing by a single
+#'   nucleotide
+#' - **Reproducible** --- the same sequence gets the same ASV identity in any study
+#' - **Comparable across studies** --- no need for re-clustering
+#' 
+#' DADA2 (Callahan et al., 2016, *Nature Methods*) is the most widely used ASV
+#' inference tool and is what we use in this workshop.
+#' 
+#' ### Dataset
+#' 
+#' We are working with **honeybee 16S V4 amplicon data** (515F--806R primers,
+#' Illumina MiSeq). [TODO: Describe the dataset — experimental design, sample
+#' groups, replicates, and any relevant biological context.]
+#' 
+#' ### Setup
+#' 
+## ----load-libraries-part1-----------------------------------------------------
+ws_chunk_begin("load-libraries-part1")
+# dada2: the main pipeline tool that takes raw sequencing reads and infers
+#   exact biological sequences (ASVs) by modeling sequencing errors
+library(dada2)
+
+# phyloseq: bundles your ASV table, taxonomy, and sample metadata into a
+#   single object for easy manipulation and analysis
+library(phyloseq)
+
+# decontam: identifies likely contaminant sequences introduced from lab
+#   reagents, kits, or the environment (not from your biological samples)
+library(decontam)
+
+# RColorBrewer: colorblind-friendly palettes for discrete/continuous plotting
+library(RColorBrewer)
+
+# tidyverse: a collection of R packages (dplyr, ggplot2, tidyr, etc.) for
+#   data wrangling, transformation, and visualization
+library(tidyverse)
+
+# Number of CPU cores DADA2 will use for parallelized steps (e.g., error
+# learning, denoising). Increase this if your machine has more cores to
+# speed up computation. Decrease if you run into memory issues.
+# Windows VMs are more stable with single-core processing for this workflow.
+# On macOS/Linux, use up to 10 cores (bounded by available cores).
+threads <- if (.Platform$OS.type == "windows") {
+  1L
+} else {
+  max(1L, min(10L, as.integer(parallel::detectCores(logical = FALSE))))
+}
+
+# Normalize sample IDs once, early, to avoid accidental "X" prefixes that can
+# appear when IDs begin with numbers (e.g., X01 -> 01).
+normalize_sample_id <- function(x) {
+  x <- as.character(x)
+  x <- sub("^X(?=[0-9])", "", x, perl = TRUE)
+  ifelse(grepl("^[0-9]+$", x), paste0("Bee_", x), x)
+}
+
+# Checkpoint folders for intermediate RDS files under Data/.
+dada2_rds_dir <- file.path(data_base_dir, "DADA2")
+microbiome_rds_dir <- file.path(data_base_dir, "MicrobiomeAnalysis")
+dada2_intermediate_dir <- file.path(dada2_rds_dir, "intermediate_fastq")
+dir.create(dada2_rds_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(microbiome_rds_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(dada2_intermediate_dir, recursive = TRUE, showWarnings = FALSE)
+
+# Workshop default: load precomputed DADA2 checkpoints instead of recomputing.
+use_precomputed_dada2 <- TRUE
+
+require_rds_checkpoint <- function(path, label) {
+  if (!file.exists(path)) {
+    stop(
+      "Required precomputed checkpoint missing for ", label, ": ", path,
+      "\nEither provide this .rds file or set use_precomputed_dada2 <- FALSE to recompute."
+    )
+  }
+  readRDS(path)
+}
+
+#' 
+#' > **Note on computation time:** Several DADA2 steps (error learning, denoising,
+#' > taxonomy assignment) take 10--40 minutes on real datasets. For this workshop,
+#' > we provide **pre-computed results** as `.rds` files. The actual function calls
+#' > are shown but commented out. You can uncomment and run them on your own time.
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Inspect Raw Data and Quality
+#' 
+#' The first step in any sequencing analysis is to examine the raw data. We need to
+#' understand: how many reads do we have, what is their quality, and are there any
+#' non-biological sequences (primers, adapters) that need to be removed?
+#' 
+#' ### List the input files
+#' 
+#' Our raw data consists of **paired-end reads**: forward (R1) and reverse (R2)
+#' files for each sample, in gzipped FastQ format.
+#' 
+## ----list-input-files---------------------------------------------------------
+ws_chunk_begin("list-input-files")
+# Paths to the tutorial subset data generated in the data setup step.
+dataset_dir <- resolve_dataset_dir(data_base_dir, "PRJNA792398")
+metadata_path <- file.path(data_base_dir, "Metadata", "GutMicrobiota_BeeTracking_metadata__TutorialSubset.csv")
+samplesheet_path <- file.path(dataset_dir, "samplesheet__TutorialSubset.csv")
+raw_dir <- file.path(dataset_dir, "FASTQs", "fastq_raw")
+symlink_dir <- file.path(dataset_dir, "FASTQs", "fastq_symlinks__TutorialSubset")
+
+# Read metadata and ensure expected ID column exists.
+metadata_tbl <- read.csv(metadata_path, stringsAsFactors = FALSE, check.names = FALSE)
+stopifnot("Sample_ID" %in% colnames(metadata_tbl))
+metadata_tbl$Sample_ID <- normalize_sample_id(metadata_tbl$Sample_ID)
+
+# Build a paired file table from the tutorial samplesheet.
+# Prefer raw FASTQ files (Windows VM friendly), and fallback to symlink paths when needed.
+if (!file.exists(samplesheet_path)) {
+  stop("Tutorial samplesheet not found: ", samplesheet_path)
+}
+
+samplesheet_map <- read.csv(samplesheet_path, stringsAsFactors = FALSE, check.names = FALSE)
+stopifnot(all(c("sample_id", "run_accession", "forward", "reverse") %in% colnames(samplesheet_map)))
+
+samplesheet <- samplesheet_map %>%
+  dplyr::mutate(
+    sample_id = normalize_sample_id(.data$sample_id),
+    forward_raw = file.path(raw_dir, paste0(.data$run_accession, "_1.fastq.gz")),
+    reverse_raw = file.path(raw_dir, paste0(.data$run_accession, "_2.fastq.gz")),
+    forward_symlink = ifelse(
+      grepl("^([A-Za-z]:|/)", .data$forward),
+      .data$forward,
+      file.path(project_root_dir, .data$forward)
+    ),
+    reverse_symlink = ifelse(
+      grepl("^([A-Za-z]:|/)", .data$reverse),
+      .data$reverse,
+      file.path(project_root_dir, .data$reverse)
+    )
+  ) %>%
+  dplyr::mutate(
+    use_raw = file.exists(.data$forward_raw) & file.exists(.data$reverse_raw),
+    forward = ifelse(.data$use_raw, .data$forward_raw, .data$forward_symlink),
+    reverse = ifelse(.data$use_raw, .data$reverse_raw, .data$reverse_symlink)
+  ) %>%
+  dplyr::filter(.data$sample_id %in% metadata_tbl$Sample_ID) %>%
+  dplyr::arrange(.data$sample_id) %>%
+  dplyr::select("sample_id", "run_accession", "forward", "reverse")
+
+if (anyDuplicated(samplesheet$sample_id) > 0) {
+  dup_ids <- unique(samplesheet$sample_id[duplicated(samplesheet$sample_id)])
+  stop(
+    "Duplicate sample IDs detected after building the tutorial samplesheet. ",
+    "Examples: ", paste(utils::head(dup_ids, 8), collapse = ", ")
+  )
+}
+
+if (!all(file.exists(samplesheet$forward)) || !all(file.exists(samplesheet$reverse))) {
+  missing_f <- samplesheet$forward[!file.exists(samplesheet$forward)]
+  missing_r <- samplesheet$reverse[!file.exists(samplesheet$reverse)]
+  stop(
+    "Missing FASTQ file(s) after path resolution. ",
+    "Examples: ",
+    paste(utils::head(c(missing_f, missing_r), 6), collapse = ", ")
+  )
+}
+
+# Build ordered file vectors for DADA2.
+fnFs <- samplesheet$forward
+fnRs <- samplesheet$reverse
+sample.names <- samplesheet$sample_id
+names(fnFs) <- sample.names
+names(fnRs) <- sample.names
+
+# Quick sanity check: how many samples did we find?
+cat("Number of samples:", length(sample.names), "\n")
+cat("First few sample names:", head(sample.names), "\n")
+cat("FASTQ raw directory:", raw_dir, "\n")
+cat("FASTQ symlink directory:", symlink_dir, "\n")
+cat("Tutorial samplesheet:", samplesheet_path, "\n")
+cat("Metadata file:", metadata_path, "\n")
+
+#' 
+#' ### Quality profiles
+#' 
+#' The `plotQualityProfile()` function shows the distribution of quality scores at
+#' each position across all reads. This is critical for deciding where to trim.
+#' 
+#' **What to look for:**
+#' 
+#' - The green line shows mean quality per position
+#' - The orange lines show quartiles of the quality score distribution
+#' - Quality typically degrades toward the 3' end (right side) because Illumina's
+#'   sequencing-by-synthesis chemistry accumulates phasing errors over cycles
+#' - R2 (reverse) reads are generally lower quality than R1 (forward)
+#' 
+## ----quality-profiles, fig.height=4, fig.width=10-----------------------------
+ws_chunk_begin("quality-profiles")
+# plotQualityProfile() reads the quality scores from all FastQ files and
+# creates a summary plot showing how quality changes along the length of reads.
+# aggregate = TRUE combines all samples into one plot (instead of one per sample).
+# This helps us decide WHERE to trim reads: we want to cut off the low-quality tails.
+# Force serial QA workers on Windows to avoid socket/serialize warnings.
+quality_bpparam <- if (.Platform$OS.type == "windows") {
+  BiocParallel::SerialParam()
+} else {
+  BiocParallel::MulticoreParam(workers = threads)
+}
+old_bpparam <- BiocParallel::bpparam()
+BiocParallel::register(quality_bpparam)
+
+quality_F <- dada2::plotQualityProfile(fnFs, aggregate = TRUE) +
+  ggplot2::ggtitle("Forward reads (R1)")  # Add a descriptive title
+quality_R <- dada2::plotQualityProfile(fnRs, aggregate = TRUE) +
+  ggplot2::ggtitle("Reverse reads (R2)")
+BiocParallel::register(old_bpparam)
+
+# Display the plots — look for where quality drops below ~Q20-Q30
+quality_F
+quality_R
+
+#' 
+#' > **Quality score refresher:**
+#' >
+#' > - Q30 = 1 error per 1,000 bases (99.9% accuracy)
+#' > - Q20 = 1 error per 100 bases (99% accuracy)
+#' > - Q10 = 1 error per 10 bases (90% accuracy)
+#' >
+#' > As a rule of thumb, trimming at positions where quality drops below Q20--Q30
+#' > is standard practice.
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Primer Detection and Quality Filtering
+#' 
+#' ### Checking for primer sequences
+#' 
+#' Depending on the library preparation protocol, primer sequences may or may not
+#' be present at the 5' end of reads. **If they are present, they must be
+#' removed** because:
+#' 
+#' - Primers are synthetic sequences, not biological signal
+#' - Degenerate bases in primers (e.g., `[AC]` meaning A or C) create artificial
+#'   sequence variants
+#' - Primer-target mismatches would inflate apparent diversity
+#' 
+#' We are using the **515F--806R (Caporaso) primers** targeting the V4 region:
+#' 
+## ----define-primers-----------------------------------------------------------
+ws_chunk_begin("define-primers")
+# Primers are short synthetic DNA sequences used during PCR to target a specific
+# gene region (here, the V4 region of the 16S rRNA gene).
+# Brackets like [AC] indicate "degenerate" bases — the primer can have either
+# A or C at that position, allowing it to bind a broader range of bacteria.
+# We define both the forward primer and its reverse complement (.rc), because
+# primers can appear in either orientation depending on read direction.
+
+# 515F forward primer (19 bp) — binds the start of the V4 region
+R1_primer    <- "GTGCCAGC[AC]GCCGCGGTAA"
+# Reverse complement of the forward primer
+R1_primer.rc <- "TTACCGCGGC[TG]GCTGGCAC"
+
+# 806R reverse primer (20 bp) — binds the end of the V4 region
+R2_primer    <- "GGACTAC[ACT][CGT]GGGT[AT]TCTAAT"
+# Reverse complement of the reverse primer
+R2_primer.rc <- "ATTAGA[AT]ACCC[CGT][AGT]GTAGTCC"
+
+#' 
+## ----check-primers------------------------------------------------------------
+ws_chunk_begin("check-primers")
+# Before removing primers, we first check whether they are actually present
+# in our reads. We test one sample as a representative.
+
+# getSequences() reads all DNA sequences from a FastQ file into a character vector
+test_seqs_R1 <- dada2::getSequences(fnFs[1])
+cat("Total reads in test file:", length(test_seqs_R1), "\n\n")
+
+# str_locate() searches each read for the primer pattern (with regex support
+# for degenerate bases). It returns the start/end position of the match, or
+# NA if no match is found. We count how many reads contain the primer.
+R1_matches <- data.frame(stringr::str_locate(test_seqs_R1, R1_primer))
+cat("R1 reads with forward primer detected:",
+    sum(!is.na(R1_matches$start)), "of", length(test_seqs_R1),
+    paste0("(", round(sum(!is.na(R1_matches$start)) / length(test_seqs_R1) * 100, 1), "%)"),
+    "\n")
+
+# Repeat the same primer check for the reverse reads (R2)
+test_seqs_R2 <- dada2::getSequences(fnRs[1])
+R2_matches <- data.frame(stringr::str_locate(test_seqs_R2, R2_primer))
+cat("R2 reads with reverse primer detected:",
+    sum(!is.na(R2_matches$start)), "of", length(test_seqs_R2),
+    paste0("(", round(sum(!is.na(R2_matches$start)) / length(test_seqs_R2) * 100, 1), "%)"),
+    "\n")
+
+#' 
+#' > The primers are present in most reads, so we need to remove them before
+#' > proceeding with the pipeline.
+#' 
+#' ### Primer removal: Two approaches
+#' 
+#' There are two common strategies for removing primers from amplicon reads. The
+#' choice depends on your library preparation and how consistently primers appear:
+#' 
+#' **Approach 1: Cutadapt (external tool, recommended for most cases)**
+#' 
+#' [Cutadapt](https://cutadapt.readthedocs.io/) is a dedicated primer/adapter
+#' removal tool run on the command line *before* DADA2. It is the more robust
+#' option because it:
+#' 
+#' - Handles **degenerate bases** in primers natively
+#' - Can find and remove primers even when they don't start at exactly position 1
+#'   (e.g., due to indels or sequencing offsets)
+#' - Trims adapters from both the 5' and 3' ends, including read-through into
+#'   the opposite primer
+#' - Reports per-sample trimming statistics
+#' 
+## # Example cutadapt command for paired-end primer removal.
+## # Cutadapt is a command-line tool (not R) that finds and removes primer/adapter
+## # sequences from reads. This loop processes each sample's paired-end files.
+## #
+## # Flag reference:
+## #   -g : forward primer sequence to remove from the 5' end of R1 reads
+## #   -G : reverse primer sequence to remove from the 5' end of R2 reads
+## #   -o : output file for trimmed R1 reads
+## #   -p : output file for trimmed R2 reads (the "paired" output)
+## #   --pair-filter=any : if EITHER read in a pair fails, discard the whole pair
+## 
+## # Loop over every R1 file in the FASTQ symlink folder
+## mkdir -p cutadapt
+## for f in Data/PRJNA792398__*/FASTQs/fastq_symlinks/*_1.fastq.gz; do
+##   r=${f/_1.fastq.gz/_2.fastq.gz}   # Derive matching reverse-read filename
+##   # Build output filenames in a "cutadapt/" folder, adding ".cut" to distinguish them
+##   out1=cutadapt/$(basename $f .fastq.gz).cut.fastq.gz
+##   out2=cutadapt/$(basename $r .fastq.gz).cut.fastq.gz
+##   # Run cutadapt on paired-end reads.
+##   # IMPORTANT: in bash, a line ending in "\" cannot have trailing spaces/comments.
+##   cutadapt \
+##     -g GTGCCAGCMGCCGCGGTAA \
+##     -G GGACTACHVGGGTWTCTAAT \
+##     -o "$out1" -p "$out2" \
+##     --pair-filter=any \
+##     "$f" "$r"
+## done
+#' 
+#' > **When to use cutadapt:** If your library prep uses the two-step Illumina
+#' > protocol (primers in the read), cutadapt is the gold standard. If you are
+#' > using the EMP protocol (primers removed by sequencing primers), cutadapt is
+#' > usually unnecessary.
+#' 
+#' **Approach 2: DADA2 `trimLeft` (simpler, used in this tutorial)**
+#' 
+#' When primers always start at position 1 (as is the case for our dataset),
+#' DADA2's `filterAndTrim()` can remove them via the `trimLeft` parameter. This
+#' is simpler (no external tool), but less flexible---it removes a fixed number of
+#' bases from the 5' end regardless of whether a primer is present.
+#' 
+#' For this tutorial, we use `trimLeft` since our primers consistently start at
+#' position 1 (as confirmed above).
+#' 
+#' ### Quality filtering and trimming
+#' 
+#' `filterAndTrim()` is the workhorse function that handles multiple tasks at once.
+#' Each parameter serves a specific purpose:
+#' 
+#' | Parameter | Value | Purpose |
+#' |-----------|-------|---------|
+#' | `trimLeft` | `c(19, 20)` | Remove 19 bp (F primer) and 20 bp (R primer) from 5' end |
+#' | `truncLen` | `0` (no trim) | Trim low-quality 3' bases; set based on quality profiles. `0` = no 3' trimming (our data is high quality throughout) |
+#' | `maxN` | `0` | Discard reads with any ambiguous bases (N). DADA2 requires this |
+#' | `maxEE` | `c(2, 2)` | Maximum expected errors per read. A read with maxEE=2 has on average ≤2 incorrect bases |
+#' | `truncQ` | `2` | Truncate reads at the first base with quality score ≤ 2 (additional safeguard against very low-quality tails) |
+#' | `rm.phix` | `TRUE` | Remove PhiX spike-in sequences (added for sequencing complexity on amplicon runs) |
+#' 
+## ----filter-and-trim----------------------------------------------------------
+ws_chunk_begin("filter-and-trim")
+# Remove stale filtered outputs from older naming schemes (for example 01_*, Bee01_*),
+# so this run keeps only the current sample-ID convention in intermediate_fastq.
+if (!use_precomputed_dada2) {
+  old_filtered_files <- list.files(
+    dada2_intermediate_dir,
+    pattern = "_[FR]_filt\\.fastq\\.gz$",
+    full.names = TRUE
+  )
+  if (length(old_filtered_files) > 0) {
+    file.remove(old_filtered_files)
+  }
+}
+
+# Create output file paths for the filtered reads — one forward and one
+# reverse file per sample, stored in a "filtered" subfolder
+filtFs <- file.path(dada2_intermediate_dir, paste0(sample.names, "_F_filt.fastq.gz"))
+filtRs <- file.path(dada2_intermediate_dir, paste0(sample.names, "_R_filt.fastq.gz"))
+
+# Name each path with its sample ID so we can look up files by sample name later
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+cat("Filtered FASTQ output directory:", dada2_intermediate_dir, "\n")
+
+# filterAndTrim() does several things at once:
+#   - Removes primer sequences from the 5' (left) end of each read
+#   - Discards reads that are too low-quality or contain ambiguous bases
+#   - Optionally truncates the 3' (right) end at a fixed length
+#   - Removes PhiX spike-in sequences (a control DNA added during sequencing)
+# It writes new, cleaned FastQ files to Data/DADA2/intermediate_fastq.
+rds_out <- file.path(dada2_rds_dir, "01_filterAndTrim_out.rds")
+if (use_precomputed_dada2) {
+  out <- require_rds_checkpoint(rds_out, "filterAndTrim output")
+  message("Loaded precomputed filterAndTrim checkpoint: ", rds_out)
+} else if (file.exists(rds_out)) {
+  out <- readRDS(rds_out)
+  message("Loaded precomputed filterAndTrim checkpoint: ", rds_out)
+} else {
+  out <- dada2::filterAndTrim(
+    fwd      = fnFs,       # Input forward read files
+    filt     = filtFs,     # Output (filtered) forward read files
+    rev      = fnRs,       # Input reverse read files
+    filt.rev = filtRs,     # Output (filtered) reverse read files
+    trimLeft  = c(19, 20), # Remove 19 bp from forward reads (primer) and 20 bp from reverse
+    truncLen  = 0,         # 0 = don't truncate the 3' end (our quality stays high throughout)
+    maxN      = 0,         # Discard any read with ambiguous bases ("N"s); DADA2 requires this
+    maxEE     = c(2, 2),   # Max "expected errors" per read; acts as a quality filter
+    truncQ    = 2,         # Truncate read at the first base with quality score <= 2
+    rm.phix   = TRUE,      # Remove PhiX control sequences (a common sequencing spike-in)
+    compress  = TRUE,      # Write output files as compressed .gz to save disk space
+    multithread = threads  # Use multiple CPU cores to speed up processing
+  )
+  saveRDS(out, rds_out)
+}
+utils::write.csv(
+  as.data.frame(out),
+  file.path(dada2_tbl_dir, "01_filterAndTrim_summary.csv"),
+  row.names = TRUE
+)
+# Optional fast restart (uncomment if this step is too slow):
+# if (file.exists(file.path(dada2_rds_dir, "01_filterAndTrim_out.rds"))) {
+#   out <- readRDS(file.path(dada2_rds_dir, "01_filterAndTrim_out.rds"))
+# }
+
+# Check if any samples lost ALL their reads during filtering (column 2 = reads out)
+# This can happen if a sample had extremely poor quality
+zero_reads <- sample.names[out[, 2] == 0]
+if (length(zero_reads) > 0) {
+  cat("WARNING:", length(zero_reads), "sample(s) lost ALL reads during filtering:\n")
+  cat("  ", paste(zero_reads, collapse = ", "), "\n")
+}
+
+# Update our file lists to only include samples that still have reads
+# (file.exists checks that a filtered file was actually created)
+if (!use_precomputed_dada2) {
+  filtFs <- filtFs[file.exists(filtFs)]
+  filtRs <- filtRs[file.exists(filtRs)]
+}
+cat("Samples with reads after filtering:", length(filtFs), "\n\n")
+
+# Display the filtering summary table: columns are "reads.in" and "reads.out"
+out
+
+#' 
+#' ### Verify primer removal
+#' 
+#' After trimming, we confirm that primers have been successfully removed:
+#' 
+## ----verify-primer-removal----------------------------------------------------
+ws_chunk_begin("verify-primer-removal")
+# After filtering, we verify that trimLeft successfully removed the primer
+# sequences. We repeat the same primer search on the FILTERED reads.
+# If trimming worked, we expect zero matches.
+if (length(filtFs) == 0 || length(filtRs) == 0 || !file.exists(filtFs[1]) || !file.exists(filtRs[1])) {
+  cat("Skipping primer-removal verification: filtered FASTQ files are not available in this run mode.\n")
+} else {
+  # Read the first filtered forward file and search for the forward primer
+  test_filt_R1 <- dada2::getSequences(filtFs[1])
+  R1_filt_matches <- data.frame(stringr::str_locate(test_filt_R1, R1_primer))
+  cat("Primers remaining in filtered R1 reads:", sum(!is.na(R1_filt_matches$start)), "\n")
+
+  # Same check for the filtered reverse reads
+  test_filt_R2 <- dada2::getSequences(filtRs[1])
+  R2_filt_matches <- data.frame(stringr::str_locate(test_filt_R2, R2_primer))
+  cat("Primers remaining in filtered R2 reads:", sum(!is.na(R2_filt_matches$start)), "\n")
+}
+
+#' 
+#' > Zero primer matches in the filtered reads confirms successful removal.
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Error Rate Learning and Denoising
+#' 
+#' This is the core of the DADA2 algorithm and what makes ASV inference possible.
+#' 
+#' ### Learning error rates
+#' 
+#' DADA2 models the probability of every possible nucleotide transition (A→C, A→G,
+#' A→T, etc.) as a function of the quality score at that position. This model is
+#' learned **empirically from the data itself** by examining ~100 million+ bases.
+#' 
+## ----learn-errors-------------------------------------------------------------
+ws_chunk_begin("learn-errors")
+# learnErrors() is the foundation of DADA2's denoising approach. It examines
+# millions of base calls and their quality scores to learn the probability
+# that each type of sequencing error occurs (e.g., an A being misread as a C).
+# This error model is what allows DADA2 to distinguish REAL biological
+# differences between sequences from ERRORS introduced by the sequencer.
+#
+# learnErrors() takes ~30 minutes on real data.
+rds_errF <- file.path(dada2_rds_dir, "02_errF.rds")
+rds_errR <- file.path(dada2_rds_dir, "03_errR.rds")
+if (use_precomputed_dada2) {
+  errF <- require_rds_checkpoint(rds_errF, "forward error model")
+  errR <- require_rds_checkpoint(rds_errR, "reverse error model")
+  message("Loaded precomputed error models: ", basename(rds_errF), ", ", basename(rds_errR))
+} else if (file.exists(rds_errF) && file.exists(rds_errR)) {
+  errF <- readRDS(rds_errF)
+  errR <- readRDS(rds_errR)
+  message("Loaded precomputed error models: ", basename(rds_errF), ", ", basename(rds_errR))
+} else {
+  set.seed(42)   # Ensures reproducibility when randomize = TRUE
+  errF <- dada2::learnErrors(
+    filtFs,             # Filtered forward read files
+    nbases = 1e8,       # Use 100 million bases for learning (enough for a robust model)
+    multithread = threads,  # Parallelize across CPU cores
+    randomize = TRUE    # Randomly pick samples instead of using the first N in order
+  )
+  set.seed(42)
+  errR <- dada2::learnErrors(
+    filtRs,             # Filtered reverse read files
+    nbases = 1e8,
+    multithread = threads,
+    randomize = TRUE
+  )
+  saveRDS(errF, rds_errF)
+  saveRDS(errR, rds_errR)
+}
+# Optional fast restart (uncomment if this step is too slow):
+# if (file.exists(file.path(dada2_rds_dir, "02_errF.rds"))) {
+#   errF <- readRDS(file.path(dada2_rds_dir, "02_errF.rds"))
+# }
+# if (file.exists(file.path(dada2_rds_dir, "03_errR.rds"))) {
+#   errR <- readRDS(file.path(dada2_rds_dir, "03_errR.rds"))
+# }
+
+#' 
+#' > **Key parameters:** `nbases = 1e8` limits learning to ~100 million bases
+#' > (sufficient for a robust model). `randomize = TRUE` randomly selects samples
+#' > for learning instead of using the first N (avoids bias if samples are ordered
+#' > by condition). `set.seed(42)` ensures reproducibility of the random selection.
+#' 
+#' ### Visualize the error model
+#' 
+#' The error rate plots are essential quality control. Each panel shows one
+#' nucleotide transition (e.g., A→C):
+#' 
+#' - **Points:** Observed error rates at each quality score
+#' - **Black line:** Estimated error rates (the learned model)
+#' - **Red line:** Expected error rates under nominal Q-scores
+#' 
+#' The black line should approximately follow the points and show a clear
+#' downward trend (higher quality = fewer errors). This is the key innovation
+#' enabling ASV resolution: instead of arbitrarily collapsing similar sequences
+#' at 97%, DADA2 uses a principled statistical model to distinguish real biological
+#' variation from sequencing errors.
+#' 
+## ----plot-errors, fig.height=6, fig.width=10----------------------------------
+ws_chunk_begin("plot-errors")
+# plotErrors() visualizes the learned error model. Each panel shows one type
+# of nucleotide substitution (e.g., A→C, A→G). The x-axis is quality score
+# and the y-axis is the error rate. The black line (learned model) should
+# follow the observed data points and decrease as quality increases.
+# nominalQ = TRUE overlays the red line showing the "expected" error rate
+# based on quality scores alone (before DADA2's correction).
+plotFerr <- dada2::plotErrors(errF, nominalQ = TRUE)
+
+# suppressWarnings() hides minor ggplot warnings that don't affect the plot
+suppressWarnings(print(plotFerr))
+
+#' 
+#' ### Dereplication, denoising, and merging
+#' 
+#' These three steps are performed together in a per-sample loop to manage memory:
+#' 
+#' 1. **Dereplication** (`derepFastq()`): Collapses identical reads, keeping track
+#'    of abundance. This speeds up computation without losing information.
+#' 
+#' 2. **Denoising** (`dada()`): The core ASV inference step. For each unique
+#'    sequence, DADA2 evaluates whether it is likely a real biological variant or a
+#'    sequencing error of a more abundant sequence, using the learned error model.
+#' 
+#' 3. **Merging** (`mergePairs()`): Joins denoised forward and reverse reads based
+#'    on their overlapping region. Default minimum overlap = 12 bp. Reads with
+#'    mismatches in the overlap are discarded.
+#' 
+## ----denoise-and-merge--------------------------------------------------------
+ws_chunk_begin("denoise-and-merge")
+# Pre-allocate empty lists/vectors to store results for each sample
+rds_dadaFs <- file.path(dada2_rds_dir, "04_dadaFs.rds")
+rds_dadaRs <- file.path(dada2_rds_dir, "05_dadaRs.rds")
+rds_mergers <- file.path(dada2_rds_dir, "06_mergers.rds")
+if (use_precomputed_dada2) {
+  dadaFs <- require_rds_checkpoint(rds_dadaFs, "forward denoised reads")
+  dadaRs <- require_rds_checkpoint(rds_dadaRs, "reverse denoised reads")
+  mergers <- require_rds_checkpoint(rds_mergers, "merged pairs")
+  sample.names.filt <- sort(intersect(names(dadaFs), names(mergers)))
+  if (length(sample.names.filt) == 0) {
+    stop("No overlapping sample names found between precomputed dadaFs and mergers checkpoints.")
+  }
+  message("Loaded precomputed denoise/merge checkpoints.")
+} else if (file.exists(rds_dadaFs) && file.exists(rds_dadaRs) && file.exists(rds_mergers)) {
+  dadaFs <- readRDS(rds_dadaFs)
+  dadaRs <- readRDS(rds_dadaRs)
+  mergers <- readRDS(rds_mergers)
+  sample.names.filt <- sort(intersect(names(dadaFs), names(mergers)))
+  if (length(sample.names.filt) == 0) {
+    stop("No overlapping sample names found between loaded dadaFs and mergers checkpoints.")
+  }
+  message("Loaded precomputed denoise/merge checkpoints.")
+} else {
+  # This loop processes each sample through dereplication, denoising, and merging.
+  sample.names.filt <- names(filtFs)
+  mergers     <- vector("list", length(sample.names.filt))   # Merged read pairs
+  ddFs_counts <- numeric(length(sample.names.filt))           # Forward read counts after denoising
+  ddRs_counts <- numeric(length(sample.names.filt))           # Reverse read counts after denoising
+  names(mergers)     <- sample.names.filt
+  names(ddFs_counts) <- sample.names.filt
+  names(ddRs_counts) <- sample.names.filt
+  dadaFs <- vector("list", length(sample.names.filt))  # Forward denoising results
+  dadaRs <- vector("list", length(sample.names.filt))  # Reverse denoising results
+  names(dadaFs) <- sample.names.filt
+  names(dadaRs) <- sample.names.filt
+
+  # Process one sample at a time to keep memory usage manageable
+  for (sam in sample.names.filt) {
+    message("Processing sample: ", sam)
+    derepF <- dada2::derepFastq(filtFs[[sam]])
+    ddF    <- dada2::dada(derepF, err = errF, multithread = threads)
+    derepR <- dada2::derepFastq(filtRs[[sam]])
+    ddR    <- dada2::dada(derepR, err = errR, multithread = threads)
+    merger <- dada2::mergePairs(ddF, derepF, ddR, derepR, verbose = TRUE)
+
+    mergers[[sam]] <- merger
+    dadaFs[[sam]]  <- ddF
+    dadaRs[[sam]]  <- ddR
+    ddFs_counts[sam] <- sum(dada2::getUniques(ddF))
+    ddRs_counts[sam] <- sum(dada2::getUniques(ddR))
+    rm(derepF, derepR, ddF, ddR, merger)
+  }
+
+  saveRDS(dadaFs, rds_dadaFs)
+  saveRDS(dadaRs, rds_dadaRs)
+  saveRDS(mergers, rds_mergers)
+}
+# Optional fast restart (uncomment if this step is too slow):
+# if (file.exists(file.path(dada2_rds_dir, "04_dadaFs.rds"))) {
+#   dadaFs <- readRDS(file.path(dada2_rds_dir, "04_dadaFs.rds"))
+# }
+# if (file.exists(file.path(dada2_rds_dir, "05_dadaRs.rds"))) {
+#   dadaRs <- readRDS(file.path(dada2_rds_dir, "05_dadaRs.rds"))
+# }
+# if (file.exists(file.path(dada2_rds_dir, "06_mergers.rds"))) {
+#   mergers <- readRDS(file.path(dada2_rds_dir, "06_mergers.rds"))
+# }
+
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## ASV Table, Chimera Removal, and Taxonomy
+#' 
+#' ### Build the sequence table
+#' 
+#' The sequence table is the samples-by-ASV count matrix. Column names are the
+#' actual DNA sequences of each ASV.
+#' 
+## ----sequence-table-----------------------------------------------------------
+ws_chunk_begin("sequence-table")
+# makeSequenceTable() combines the merged reads from ALL samples into a single
+# count matrix: rows = samples, columns = unique ASV sequences.
+# Each cell contains the number of times that ASV was observed in that sample.
+# The column names are the actual DNA sequences of each ASV.
+rds_seqtab <- file.path(dada2_rds_dir, "07_seqtab.rds")
+if (use_precomputed_dada2) {
+  seqtab <- require_rds_checkpoint(rds_seqtab, "sequence table")
+  message("Loaded precomputed sequence table checkpoint: ", rds_seqtab)
+} else if (file.exists(rds_seqtab)) {
+  seqtab <- readRDS(rds_seqtab)
+  message("Loaded precomputed sequence table checkpoint: ", rds_seqtab)
+} else {
+  seqtab <- dada2::makeSequenceTable(mergers)
+  saveRDS(seqtab, rds_seqtab)
+}
+# Optional fast restart (uncomment if this step is too slow):
+# if (file.exists(file.path(dada2_rds_dir, "07_seqtab.rds"))) {
+#   seqtab <- readRDS(file.path(dada2_rds_dir, "07_seqtab.rds"))
+# }
+
+# dim() returns rows (samples) and columns (ASVs)
+cat("Dimensions (samples x ASVs):", dim(seqtab), "\n\n")
+
+# Check the length distribution of our merged sequences.
+# nchar() counts characters (bases) in each ASV sequence.
+# For V4 amplicons, we expect ~251-255 bp. Sequences far outside this
+# range are likely artifacts (e.g., non-specific amplification or failed merges).
+cat("Sequence length distribution:\n")
+table(nchar(dada2::getSequences(seqtab)))
+
+#' 
+#' ### Length filtering
+#' 
+#' For the V4 region (515F--806R), we expect merged amplicons of ~251--255 bp
+#' (806 - 515 = 291, minus primers: 291 - 19 - 20 ≈ 252, with some biological
+#' variation from indels). Sequences far outside this range likely represent
+#' non-specific amplification or merging artifacts.
+#' 
+## ----length-filter------------------------------------------------------------
+ws_chunk_begin("length-filter")
+# Keep only ASV sequences whose length falls within the expected range (251-255 bp).
+# colnames(seqtab) are the DNA sequences; nchar() gets their lengths.
+# %in% seq(251, 255) checks if each length is 251, 252, 253, 254, or 255.
+# This removes unusually short or long sequences that are likely artifacts.
+seqtab <- seqtab[, nchar(colnames(seqtab)) %in% seq(251, 255)]
+cat("ASVs remaining after length filtering:", ncol(seqtab), "\n")
+
+#' 
+#' ### Chimera removal
+#' 
+#' **Chimeras** are hybrid sequences formed during PCR when an incomplete extension
+#' product re-anneals to a different template in a subsequent cycle. They can
+#' constitute ~30% of unique sequences in raw data.
+#' 
+#' `removeBimeraDenovo()` identifies chimeras by checking whether each ASV can be
+#' reconstructed as a combination of two more abundant "parent" sequences. Because
+#' chimeric sequences are individually low-abundance, the total read loss is
+#' usually modest.
+#' 
+## ----chimera-removal----------------------------------------------------------
+ws_chunk_begin("chimera-removal")
+# removeBimeraDenovo() identifies and removes chimeric sequences.
+# Chimeras are artificial sequences created during PCR when an incomplete DNA
+# copy from one template accidentally joins with a different template. The result
+# is a hybrid (chimera) of two real sequences.
+# method = "consensus" checks each ASV across all samples — if an ASV is
+# flagged as chimeric in a majority of samples where it appears, it is removed.
+rds_seqtab_nochim <- file.path(dada2_rds_dir, "08_seqtab_nochim.rds")
+if (use_precomputed_dada2) {
+  seqtab.nochim <- require_rds_checkpoint(rds_seqtab_nochim, "chimera-filtered sequence table")
+  message("Loaded precomputed chimera-filtered table: ", rds_seqtab_nochim)
+} else if (file.exists(rds_seqtab_nochim)) {
+  seqtab.nochim <- readRDS(rds_seqtab_nochim)
+  message("Loaded precomputed chimera-filtered table: ", rds_seqtab_nochim)
+} else {
+  seqtab.nochim <- dada2::removeBimeraDenovo(
+    seqtab,                 # Input ASV table (before chimera removal)
+    method    = "consensus", # Use consensus across samples to flag chimeras
+    multithread = threads,   # Parallelize for speed
+    verbose   = TRUE         # Print progress messages
+  )
+  saveRDS(seqtab.nochim, rds_seqtab_nochim)
+}
+# Optional fast restart (uncomment if this step is too slow):
+# if (file.exists(file.path(dada2_rds_dir, "08_seqtab_nochim.rds"))) {
+#   seqtab.nochim <- readRDS(file.path(dada2_rds_dir, "08_seqtab_nochim.rds"))
+# }
+
+# Report how many ASVs were identified as chimeras and removed.
+# Many unique sequences may be chimeric, but they are usually low-abundance,
+# so the total number of READS lost is typically small (< 15%).
+cat("\nASVs before chimera removal:", ncol(seqtab), "\n")
+cat("ASVs after chimera removal:", ncol(seqtab.nochim), "\n")
+cat("Fraction of reads retained:",
+    round(sum(seqtab.nochim) / sum(seqtab) * 100, 1), "%\n")
+
+#' 
+#' ### Track reads through the pipeline
+#' 
+#' Building a tracking table lets us verify that a reasonable fraction of reads
+#' survived each step. Expect **>60% overall pass-through**. Large drops at
+#' specific steps indicate problems:
+#' 
+#' - Large loss at filtering → overly aggressive quality thresholds
+#' - Large loss at merging → insufficient overlap (over-trimming) or poor R2 quality
+#' - Large loss at chimera removal → potential contamination or PCR issues
+#' 
+## ----tracking-table-----------------------------------------------------------
+ws_chunk_begin("tracking-table")
+# Helper function: extracts the total number of reads from a dada or merger object
+getN <- function(x) sum(dada2::getUniques(x))
+
+# Build a summary table showing how many reads survived each pipeline step.
+# In precomputed mode, align samples using run_accession <-> sample_id mapping.
+track_samples <- Reduce(intersect, list(names(dadaFs), names(mergers), rownames(seqtab), rownames(seqtab.nochim)))
+if (length(track_samples) == 0) {
+  stop("No overlapping sample IDs found across DADA2 objects for tracking.")
+}
+
+out_df <- as.data.frame(out, stringsAsFactors = FALSE)
+if (ncol(out_df) < 2 || is.null(rownames(out_df))) {
+  stop("filterAndTrim checkpoint does not have expected row/column structure.")
+}
+in_col <- colnames(out_df)[1]
+out_col <- colnames(out_df)[2]
+out_df$run_accession <- sub("_[12]\\.fastq\\.gz$", "", rownames(out_df))
+sample_map <- samplesheet_map %>%
+  dplyr::transmute(
+    run_accession = as.character(.data$run_accession),
+    sample_id = normalize_sample_id(.data$sample_id)
+  ) %>%
+  dplyr::distinct(.data$run_accession, .keep_all = TRUE)
+out_df <- out_df %>%
+  dplyr::left_join(sample_map, by = "run_accession")
+out_summary <- out_df %>%
+  dplyr::filter(.data$sample_id %in% track_samples) %>%
+  dplyr::group_by(.data$sample_id) %>%
+  dplyr::summarise(
+    input = as.numeric(max(.data[[in_col]], na.rm = TRUE)),
+    filtered = as.numeric(max(.data[[out_col]], na.rm = TRUE)),
+    .groups = "drop"
+  )
+
+if (nrow(out_summary) != length(track_samples)) {
+  missing_track <- setdiff(track_samples, out_summary$sample_id)
+  stop(
+    "Failed to map filterAndTrim counts to sample IDs for tracking. Missing: ",
+    paste(utils::head(missing_track, 8), collapse = ", ")
+  )
+}
+
+track <- data.frame(
+  sample_id = track_samples,
+  denoised = sapply(dadaFs, getN)[track_samples],    # Reads after denoising
+  merged   = sapply(mergers, getN)[track_samples],   # Reads after merging
+  tabled   = rowSums(seqtab)[track_samples],         # Reads in sequence table
+  nochim   = rowSums(seqtab.nochim)[track_samples]   # Reads after chimera removal
+) %>%
+  dplyr::left_join(out_summary, by = "sample_id") %>%
+  dplyr::select(.data$sample_id, .data$input, .data$filtered, .data$denoised, .data$merged, .data$tabled, .data$nochim)
+rownames(track) <- track$sample_id
+track$sample_id <- NULL
+
+# Calculate what percentage of the original reads made it through the entire pipeline
+track$percent_retained <- round(track$nochim / track$input * 100, 1)
+utils::write.csv(track, file.path(dada2_tbl_dir, "02_read_tracking_table.csv"), row.names = TRUE)
+
+# Visualize read retention by sample across pipeline stages.
+track$sample_id <- rownames(track)
+track_long <- track %>%
+  tibble::as_tibble() %>%
+  tidyr::pivot_longer(
+    cols = c("input", "filtered", "denoised", "merged", "tabled", "nochim"),
+    names_to = "stage",
+    values_to = "reads"
+  ) %>%
+  dplyr::mutate(
+    stage = factor(
+      .data$stage,
+      levels = c("input", "filtered", "denoised", "merged", "tabled", "nochim"),
+      labels = c("Input", "Filtered", "Denoised", "Merged", "Seq table", "No chimera")
+    )
+  )
+
+stage_summary <- track_long %>%
+  dplyr::group_by(.data$stage) %>%
+  dplyr::summarise(median_reads = stats::median(.data$reads), .groups = "drop")
+
+ggplot2::ggplot(track_long, ggplot2::aes(x = .data$stage, y = .data$reads, group = .data$sample_id)) +
+  ggplot2::geom_line(alpha = 0.25, color = "#2C7FB8") +
+  ggplot2::geom_point(alpha = 0.35, size = 1.4, color = "#2C7FB8") +
+  ggplot2::geom_line(
+    data = stage_summary,
+    ggplot2::aes(x = .data$stage, y = .data$median_reads, group = 1),
+    inherit.aes = FALSE,
+    color = "#D95F0E",
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_point(
+    data = stage_summary,
+    ggplot2::aes(x = .data$stage, y = .data$median_reads),
+    inherit.aes = FALSE,
+    color = "#D95F0E",
+    size = 2.2
+  ) +
+  ggplot2::scale_y_continuous(labels = scales::comma) +
+  ggplot2::theme_minimal() +
+  ggplot2::labs(
+    title = "Read Retention Across DADA2 Stages",
+    subtitle = "Blue lines = individual samples; orange line = median across samples",
+    x = "Pipeline stage",
+    y = "Read count"
+  )
+
+# Display the tracking table — expect >60% retention for a healthy dataset
+track
+
+#' 
+#' **Discussion prompts for students**
+#' 
+#' - At which stage do most samples lose the largest fraction of reads, and why might that be expected biologically or technically?
+#' - Do any samples show a much steeper drop than the others at a specific stage? What could that indicate about those samples?
+#' - If read loss is high at the merging step, what parameter choices or read-quality issues would you inspect first?
+#' - How would your interpretation change if controls (blanks/mock) lose reads differently than biological samples?
+#' 
+#' 
+#' ### Assign taxonomy
+#' 
+#' Taxonomy is assigned using a **naive Bayesian classifier** (Wang et al., 2007)
+#' that compares each ASV sequence against the SILVA v138 reference database.
+#' `addSpecies()` attempts exact matching for species-level assignments.
+#' 
+#' Some ASVs will lack genus- or species-level classification---this is normal.
+#' Short 16S fragments (especially from V4 alone) cannot always resolve to species,
+#' and some sequences simply lack a close match in the reference database.
+#' 
+## ----assign-taxonomy----------------------------------------------------------
+ws_chunk_begin("assign-taxonomy")
+# assignTaxonomy() takes each ASV sequence and compares it against a reference
+# database (SILVA) to determine its taxonomy (Kingdom > Phylum > Class > ... > Genus).
+# It uses a naive Bayesian classifier: essentially asking "given this sequence,
+# what is the probability it belongs to each known taxon?"
+#
+# assignTaxonomy() takes ~5 minutes.
+silva_taxonomy_db <- file.path(data_base_dir, "Databases", "silva_nr99_v138.2_toSpecies_trainset.fa.gz")
+if (!file.exists(silva_taxonomy_db)) {
+  stop("SILVA taxonomy database not found at: ", silva_taxonomy_db)
+}
+rds_taxa <- file.path(dada2_rds_dir, "09_taxa.rds")
+if (use_precomputed_dada2) {
+  taxa <- require_rds_checkpoint(rds_taxa, "taxonomy assignments")
+  message("Loaded precomputed taxonomy checkpoint: ", rds_taxa)
+} else if (file.exists(rds_taxa)) {
+  taxa <- readRDS(rds_taxa)
+  message("Loaded precomputed taxonomy checkpoint: ", rds_taxa)
+} else {
+  set.seed(42)  # For reproducibility of the classifier's bootstrap sampling
+  taxa <- dada2::assignTaxonomy(
+    seqtab.nochim,                                 # Our chimera-free ASV table
+    silva_taxonomy_db,                              # SILVA v138.2 toSpecies training set
+    multithread = threads                           # Parallelize for speed
+  )
+
+  # Optional exact species matching (only run if the species assignment file exists).
+  silva_species_db <- file.path(data_base_dir, "Databases", "silva_species_assignment_v138.2.fa.gz")
+  if (file.exists(silva_species_db)) {
+    taxa <- dada2::addSpecies(taxa, silva_species_db)
+  }
+  saveRDS(taxa, rds_taxa)
+}
+# Optional fast restart (uncomment if this step is too slow):
+# if (file.exists(file.path(dada2_rds_dir, "09_taxa.rds"))) {
+#   taxa <- readRDS(file.path(dada2_rds_dir, "09_taxa.rds"))
+# }
+
+# Preview the taxonomy table: each row is an ASV, columns are taxonomic ranks
+# (Kingdom, Phylum, Class, Order, Family, Genus, Species)
+# NA means the classifier couldn't confidently assign that rank
+taxa.print <- taxa
+rownames(taxa.print) <- NULL  # Remove long sequence names for cleaner display
+head(taxa.print)
+
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Filtering and Building the Phyloseq Object
+#' 
+#' ### Create a preliminary phyloseq object
+#' 
+#' The `phyloseq` package provides a unified data structure that bundles the ASV
+#' table, taxonomy, sample metadata, and optionally a phylogenetic tree into a
+#' single R object. Most downstream microbiome analysis tools accept phyloseq
+#' objects directly.
+#' 
+## ----build-initial-phyloseq---------------------------------------------------
+ws_chunk_begin("build-initial-phyloseq")
+# For Part 1, continue with the objects generated above.
+seqtab.nochim.full <- seqtab.nochim
+taxa.full <- taxa
+# Optional fast restart (uncomment if checkpoints exist):
+# seqtab.nochim.full <- readRDS(file.path(dada2_rds_dir, "08_seqtab_nochim.rds"))
+# taxa.full <- readRDS(file.path(dada2_rds_dir, "09_taxa.rds"))
+
+# phyloseq() creates a unified data object that links together:
+#   - otu_table: the ASV count matrix (samples x ASVs)
+#   - tax_table: the taxonomy for each ASV (Kingdom through Species)
+# taxa_are_rows = FALSE tells phyloseq that SAMPLES are rows and ASVs are columns
+# (this matches the DADA2 output format)
+ps <- phyloseq::phyloseq(
+  phyloseq::otu_table(seqtab.nochim.full, taxa_are_rows = FALSE),
+  phyloseq::tax_table(taxa.full)
+)
+# Ensure sample names remain non-syntactic-safe IDs (e.g., keep "01" not "X01").
+phyloseq::sample_names(ps) <- normalize_sample_id(phyloseq::sample_names(ps))
+
+# By default, ASV names are the full DNA sequences (e.g., "TACGGAGG..."),
+# which are unwieldy. We replace them with short IDs like "ASV1", "ASV2", etc.
+# We save the mapping between sequence and ID in case we need it later.
+names_df <- data.frame(
+  seq = phyloseq::taxa_names(ps),                         # Original: full DNA sequences
+  asv = paste0("ASV", seq_len(phyloseq::ntaxa(ps))),      # New: ASV1, ASV2, ...
+  stringsAsFactors = FALSE
+)
+phyloseq::taxa_names(ps) <- names_df$asv  # Apply the new short names
+saveRDS(ps, file.path(dada2_rds_dir, "10_ps_initial.rds"))
+saveRDS(names_df, file.path(dada2_rds_dir, "11_asv_name_map.rds"))
+# Optional fast restart (uncomment if this step is too slow):
+# ps <- readRDS(file.path(dada2_rds_dir, "10_ps_initial.rds"))
+# names_df <- readRDS(file.path(dada2_rds_dir, "11_asv_name_map.rds"))
+
+# Summarize: how many ASVs and samples are in our initial phyloseq object?
+cat("Initial phyloseq:", phyloseq::ntaxa(ps), "ASVs across",
+    phyloseq::nsamples(ps), "samples\n")
+
+#' 
+#' ### Remove low-depth samples and tag controls
+#' 
+## ----remove-low-depth---------------------------------------------------------
+ws_chunk_begin("remove-low-depth")
+# Attach metadata before QC so controls can be used in decontam/diagnostics.
+meta_qc <- read.csv(metadata_path, stringsAsFactors = FALSE, check.names = FALSE)
+stopifnot(all(c("Sample_ID", "Treatment", "Negative") %in% colnames(meta_qc)))
+meta_qc$Sample_ID <- normalize_sample_id(meta_qc$Sample_ID)
+
+# Align metadata rows to the phyloseq sample order.
+sample_ids_ps <- normalize_sample_id(phyloseq::sample_names(ps))
+missing_ids <- setdiff(sample_ids_ps, meta_qc$Sample_ID)
+if (length(missing_ids) > 0) {
+  stop("Metadata is missing Sample_ID values for: ", paste(missing_ids, collapse = ", "))
+}
+meta_qc <- meta_qc[match(sample_ids_ps, meta_qc$Sample_ID), ]
+rownames(meta_qc) <- meta_qc$Sample_ID
+
+# Derive explicit control flags for this workshop dataset:
+# - kit blanks: N1..N9 / Treatment == "blank"
+# - water blanks: H2O controls / Treatment == "H2O"
+# - mock controls: MOCK_* / Treatment == "mock"
+# - inoculum controls: Treatment == "inoculum"
+meta_qc$is_kit_blank <- grepl("^N[0-9]+$", meta_qc$Sample_ID) | meta_qc$Treatment == "blank"
+meta_qc$is_water_blank <- grepl("^H2O", meta_qc$Sample_ID) | meta_qc$Treatment == "H2O"
+meta_qc$is_mock_control <- grepl("^MOCK", meta_qc$Sample_ID) | tolower(meta_qc$Treatment) == "mock"
+meta_qc$is_inoculum_control <- tolower(meta_qc$Treatment) == "inoculum"
+meta_qc$is_negative <- meta_qc$Negative %in% c(TRUE, "TRUE", "True", "true", 1, "1") |
+  meta_qc$is_kit_blank | meta_qc$is_water_blank
+meta_qc$is_control_any <- meta_qc$is_negative | meta_qc$is_mock_control | meta_qc$is_inoculum_control
+
+# Add metadata and control flags to the phyloseq object.
+phyloseq::sample_data(ps) <- phyloseq::sample_data(meta_qc)
+
+# sample_sums() returns the total number of reads in each sample.
+# Plotting this distribution helps choose a sensible minimum depth threshold.
+read_depth <- phyloseq::sample_sums(ps)
+depth_df <- data.frame(
+  sample_id = names(read_depth),
+  read_depth = as.numeric(read_depth),
+  is_control = as.logical(phyloseq::sample_data(ps)$is_control_any)
+)
+
+# Histogram of read depth across all samples.
+# Biological and control samples are shown together so users can see the full range.
+ggplot2::ggplot(depth_df, ggplot2::aes(x = read_depth)) +
+  ggplot2::geom_histogram(
+    bins = 30,
+    fill = RColorBrewer::brewer.pal(8, "Dark2")[3],
+    color = "white"
+  ) +
+  ggplot2::theme_minimal() +
+  ggplot2::labs(
+    title = "Read Depth Distribution Across Samples",
+    x = "Total reads per sample",
+    y = "Number of samples"
+  )
+
+# Sort depths so users can inspect specific low-depth samples.
+sort(read_depth)
+
+# Default minimum depth threshold for biological samples.
+# Adjust this value based on the histogram and project goals.
+min_read_depth <- 5000
+cat("Using default minimum read depth:", min_read_depth, "\n")
+
+# prune_samples() removes low-depth biological samples.
+# Controls are retained regardless of depth so they remain available for decontam/QC.
+ps.pruned <- ps %>%
+  phyloseq::prune_samples(
+    phyloseq::sample_sums(ps) > min_read_depth | phyloseq::sample_data(ps)$is_control_any, .
+  )
+
+cat("Samples after depth filter:", phyloseq::nsamples(ps.pruned), "\n")
+cat("Negative controls kept for decontam:", sum(phyloseq::sample_data(ps.pruned)$is_negative), "\n")
+cat("Mock controls kept for QC:", sum(phyloseq::sample_data(ps.pruned)$is_mock_control), "\n")
+saveRDS(ps.pruned, file.path(dada2_rds_dir, "12_ps_pruned.rds"))
+# Optional fast restart (uncomment if this step is too slow):
+# ps.pruned <- readRDS(file.path(dada2_rds_dir, "12_ps_pruned.rds"))
+
+#' 
+#' ### Contaminant identification with decontam
+#' 
+#' Laboratory reagents, DNA extraction kits, and the sequencing environment itself
+#' can introduce microbial DNA that is not part of your biological samples. The
+#' `decontam` package (Davis et al., 2018) identifies likely contaminant ASVs using
+#' two complementary strategies:
+#' 
+#' | Method | Requires | Logic |
+#' |--------|----------|-------|
+#' | **Frequency** | DNA concentration (e.g., PicoGreen) | Contaminants are *more* abundant in low-concentration samples (inverse correlation with DNA input) |
+#' | **Prevalence** | Negative control samples | Contaminants are *more* prevalent in negative controls than in true samples |
+#' 
+#' You can run either method alone, or combine both with `method = "either"` for
+#' maximum sensitivity. If you have both DNA concentration data and negative
+#' controls, combining is recommended.
+#' 
+#' > **Note:** This dataset includes kit blanks, water blanks, and mock controls in
+#' > metadata, so the prevalence/frequency decontam workflow is applicable. The
+#' > chunk remains `eval=FALSE` in the tutorial to keep runtime manageable.
+#' 
+## ----decontam-example, eval=FALSE---------------------------------------------
+ws_chunk_begin("decontam-example")
+# # --- Frequency-based method ---
+# # Logic: contaminant DNA comes from reagents at a roughly fixed amount,
+# # so in samples with LESS total DNA (low concentration), contaminant sequences
+# # make up a LARGER fraction. isContaminant() looks for this inverse correlation
+# # between DNA concentration and sequence abundance.
+# contamdf_freq <- decontam::isContaminant(
+#   ps.pruned,              # Phyloseq object to test
+#   method = "frequency",   # Use the frequency-based approach
+#   conc   = "Picogreen"   # Name of the column in sample_data() holding DNA concentrations
+# )
+# # table() counts how many ASVs are flagged as contaminants (TRUE) vs. not (FALSE)
+# table(contamdf_freq$contaminant)
+# 
+# # --- Prevalence-based method ---
+# # Logic: contaminant sequences should appear MORE OFTEN in negative control
+# # samples (which contain no biological DNA) than in real samples.
+# contamdf_prev <- decontam::isContaminant(
+#   ps.pruned,
+#   method    = "prevalence",    # Use the prevalence-based approach
+#   neg       = "is_negative",  # Column in sample_data(): TRUE = negative control sample
+#   normalize = TRUE,            # Normalize for differences in sequencing depth
+#   threshold = 0.1             # P-value threshold; lower = stricter (fewer contaminants flagged)
+# )
+# table(contamdf_prev$contaminant)
+# 
+# # Visualize which ASVs are contaminants by plotting their prevalence in
+# # real samples (y-axis) vs. negative controls (x-axis).
+# # Contaminants should cluster toward the upper-left (common in negatives, rare in real).
+# 
+# # transform_sample_counts() converts counts to presence/absence (1 or 0)
+# ps_pa     <- phyloseq::transform_sample_counts(ps.pruned, function(x) 1 * (x > 0))
+# # Split into negative controls and real (positive) samples
+# ps_pa_neg <- phyloseq::prune_samples(sample_data(ps_pa)$is_negative == TRUE, ps_pa)
+# ps_pa_pos <- phyloseq::prune_samples(sample_data(ps_pa)$is_negative == FALSE, ps_pa)
+# 
+# # taxa_sums() on presence/absence data = number of samples each ASV appears in
+# prev_df <- data.frame(
+#   pa_pos      = phyloseq::taxa_sums(ps_pa_pos),    # Prevalence in real samples
+#   pa_neg      = phyloseq::taxa_sums(ps_pa_neg),    # Prevalence in negative controls
+#   contaminant = contamdf_prev$contaminant           # TRUE/FALSE contaminant flag
+# )
+# ggplot2::ggplot(prev_df, ggplot2::aes(x = pa_neg, y = pa_pos, color = contaminant)) +
+#   ggplot2::geom_point(size = 2, alpha = 0.7) +
+#   ggplot2::scale_color_brewer(palette = "Dark2") +
+#   ggplot2::labs(x = "Prevalence (Negative Controls)",
+#                 y = "Prevalence (True Samples)") +
+#   ggplot2::theme_minimal()
+# 
+# # --- Combined method (recommended when both data types are available) ---
+# # method = "either" flags an ASV as a contaminant if EITHER the frequency
+# # or prevalence method identifies it, giving maximum sensitivity.
+# contamdf_both <- decontam::isContaminant(
+#   ps.pruned,
+#   conc      = "Picogreen",    # DNA concentration column
+#   neg       = "is_negative",  # Negative control indicator column
+#   method    = "either",       # Flag if EITHER method flags it
+#   normalize = TRUE
+# )
+# table(contamdf_both$contaminant)
+# 
+# # Remove all ASVs identified as contaminants from the phyloseq object.
+# # The "!" negates the logical vector, keeping only non-contaminant ASVs.
+# ps.decontam <- phyloseq::prune_taxa(!contamdf_both$contaminant, ps.pruned)
+# cat("ASVs removed by decontam:", sum(contamdf_both$contaminant), "\n")
+# cat("ASVs remaining:", phyloseq::ntaxa(ps.decontam), "\n")
+
+#' 
+#' > **Why decontam matters:** Contaminant sequences can dominate low-biomass
+#' > samples, create spurious associations in differential abundance analysis, and
+#' > inflate alpha diversity. Even in high-biomass samples, contaminants add noise.
+#' > Running decontam is especially critical for:
+#' >
+#' > - Environmental samples with low microbial biomass
+#' > - Studies using kit-based DNA extraction (the "kitome")
+#' > - Any study where negative controls were sequenced
+#' 
+#' For workshop timing, we skip running decontam live and proceed to taxa
+#' filtering. On a full run, execute the decontam chunk above and continue with the
+#' decontaminated object.
+#' 
+#' ### Optional: Mock community QC with plasmid references
+#' 
+#' If you have a reference FASTA for the mock community (for example,
+#' `Data/Databases/mock_seq_plasmids.fasta`), you can use it as an additional QC
+#' layer. This is not required for the main workflow, but it helps verify whether
+#' dominant mock-sample ASVs are consistent with expected mock reference sequences.
+#' 
+## ----mock-community-qc-optional, eval=FALSE-----------------------------------
+ws_chunk_begin("mock-community-qc-optional")
+# mock_fasta_path <- file.path(data_base_dir, "Databases", "mock_seq_plasmids.fasta")
+# if (!file.exists(mock_fasta_path)) {
+#   stop("Mock reference FASTA not found at: ", mock_fasta_path)
+# }
+# 
+# if (!exists("meta_qc")) {
+#   stop("meta_qc not found. Run the remove-low-depth chunk first.")
+# }
+# 
+# # Official DADA2-style reference loading for exact-sequence comparison.
+# mock_ref <- dada2::getSequences(mock_fasta_path)
+# 
+# # Identify mock samples from metadata and keep those that are present in seqtab.nochim.
+# mock_samples <- intersect(
+#   rownames(meta_qc)[meta_qc$is_mock_control],
+#   rownames(seqtab.nochim)
+# )
+# if (length(mock_samples) == 0) {
+#   stop("No mock samples detected in seqtab.nochim.")
+# }
+# 
+# # Pool mock counts across all detected mock-control samples.
+# unqs_mock <- colSums(seqtab.nochim[mock_samples, , drop = FALSE])
+# unqs_mock <- sort(unqs_mock[unqs_mock > 0], decreasing = TRUE)  # Drop ASVs absent in mock samples
+# 
+# cat("DADA2 inferred", length(unqs_mock), "sequence variants present in mock sample(s).\n")
+# 
+# # Official DADA2-style exact-match evaluation.
+# match_ref <- sum(sapply(names(unqs_mock), function(x) any(x == mock_ref)))
+# cat("Of those,", match_ref, "were exact matches to expected mock reference sequences.\n")
+# 
+# # Export the core mock-accuracy summary.
+# mock_eval_tbl <- data.frame(
+#   n_mock_samples = length(mock_samples),
+#   n_inferred_mock_asvs = length(unqs_mock),
+#   n_exact_reference_matches = match_ref,
+#   frac_exact_reference_matches = round(match_ref / length(unqs_mock), 4),
+#   stringsAsFactors = FALSE
+# )
+# utils::write.csv(
+#   mock_eval_tbl,
+#   file.path(dada2_tbl_dir, "04_mock_accuracy_summary.csv"),
+#   row.names = FALSE
+# )
+# 
+# # Export detailed ASV-level table with taxonomy and exact-match flag.
+# mock_asv_tbl <- data.frame(
+#   asv_sequence = names(unqs_mock),
+#   mock_abundance = as.numeric(unqs_mock),
+#   exact_reference_match = names(unqs_mock) %in% mock_ref,
+#   stringsAsFactors = FALSE
+# ) %>%
+#   dplyr::left_join(
+#     as.data.frame(taxa) %>%
+#       tibble::rownames_to_column("asv_sequence"),
+#     by = "asv_sequence"
+#   ) %>%
+#   dplyr::arrange(dplyr::desc(.data$mock_abundance))
+# 
+# utils::write.csv(
+#   mock_asv_tbl,
+#   file.path(dada2_tbl_dir, "05_mock_asvs_with_taxonomy_and_match_flag.csv"),
+#   row.names = FALSE
+# )
+# 
+# head(mock_asv_tbl)
+
+#' 
+#' ### Post-DADA2 taxa filtering
+#' 
+#' After building the initial phyloseq object (and optionally running decontam),
+#' we apply a series of quality filters to remove sequences that are not
+#' informative for microbial community analysis. Each step targets a specific
+#' category of problematic ASV.
+#' 
+#' We report the number of ASVs removed at each step for transparency---this is
+#' good practice for methods sections and supplementary materials.
+#' 
+## ----taxa-filtering-pipeline--------------------------------------------------
+ws_chunk_begin("taxa-filtering-pipeline")
+# Record how many ASVs we start with so we can track how many are removed
+n_start <- phyloseq::ntaxa(ps.pruned)
+cat(sprintf("Starting ASVs: %d\n\n", n_start))
+
+# --- Step 1: Prevalence filter ---
+# Remove ASVs found in fewer than N samples.
+# Very rare ASVs (present in only 1-2 samples) are often:
+#   - Sequencing artifacts that escaped DADA2's error model
+#   - Contaminants from reagents or the environment
+#   - Transient environmental DNA, not true community members
+# A good threshold is the minimum group size in your experimental design.
+prev_threshold <- 3  # ASV must appear in at least 3 samples to be kept
+n_before <- phyloseq::ntaxa(ps.pruned)
+
+# apply() loops over the ASV table to count in how many samples each ASV appears.
+# MARGIN = 1 means loop over rows, MARGIN = 2 means columns.
+# taxa_are_rows() tells us which dimension is ASVs so we loop over the right one.
+# sum(x > 0) counts how many samples have at least 1 read for that ASV.
+prevalence <- apply(
+  X = phyloseq::otu_table(ps.pruned),
+  MARGIN = ifelse(phyloseq::taxa_are_rows(ps.pruned), yes = 1, no = 2),
+  FUN = function(x) sum(x > 0)
+)
+
+# Keep only ASVs that pass the prevalence threshold
+keep_taxa <- names(prevalence[prevalence >= prev_threshold])
+ps.filt <- phyloseq::prune_taxa(keep_taxa, ps.pruned)  # Subset the phyloseq object
+cat(sprintf("Step 1 - Prevalence filter (min %d samples): %d -> %d ASVs (%d removed)\n",
+            prev_threshold, n_before, phyloseq::ntaxa(ps.filt),
+            n_before - phyloseq::ntaxa(ps.filt)))
+
+# --- Step 2: Remove non-target taxa (Mitochondria, Chloroplast, Eukaryota) ---
+# 16S primers can accidentally amplify DNA from:
+#   - Host mitochondria (mitochondria evolved from bacteria, so they have 16S genes)
+#   - Plant/algal chloroplasts (also of bacterial origin)
+#   - Eukaryotes (cross-amplification of 18S rRNA genes)
+# These are not part of the microbial community we are studying and must be
+# removed to avoid inflating diversity estimates and confounding comparisons.
+n_before <- phyloseq::ntaxa(ps.filt)
+
+# subset_taxa() filters ASVs based on their taxonomy table values.
+# We keep only Bacteria and Archaea, and exclude Mitochondria and Chloroplast.
+# We use %in% (not ==) so that ASVs with NA taxonomy are not accidentally removed.
+ps.filt <- ps.filt %>%
+  phyloseq::subset_taxa(
+    Kingdom %in% c("Bacteria", "Archaea") &  # Only keep bacterial/archaeal sequences
+    !Family %in% "Mitochondria" &             # Remove mitochondrial sequences
+    !Order %in% "Chloroplast"                 # Remove chloroplast sequences
+  )
+cat(sprintf("Step 2 - Remove Mitochondria/Chloroplast/non-Bacteria: %d -> %d ASVs (%d removed)\n",
+            n_before, phyloseq::ntaxa(ps.filt),
+            n_before - phyloseq::ntaxa(ps.filt)))
+
+# --- Step 3: Remove ASVs with no phylum-level classification ---
+# ASVs classified only to Kingdom (e.g., "Bacteria") with no Phylum assignment
+# are typically:
+#   - Highly divergent sequences with no close database match
+#   - Chimeras or artifacts that passed the earlier filter
+#   - Sequences too short or degraded for reliable classification
+# These provide no meaningful taxonomic information and add noise to downstream
+# analyses that group results by phylum or lower taxonomic ranks.
+n_before <- phyloseq::ntaxa(ps.filt)
+ps.filt <- ps.filt %>%
+  phyloseq::subset_taxa(!is.na(Phylum) & Phylum != "")  # Keep only ASVs with a Phylum assignment
+cat(sprintf("Step 3 - Remove ASVs with no Phylum classification: %d -> %d ASVs (%d removed)\n",
+            n_before, phyloseq::ntaxa(ps.filt),
+            n_before - phyloseq::ntaxa(ps.filt)))
+
+# --- Summary ---
+# Report the overall effect of all filtering steps combined
+n_end <- phyloseq::ntaxa(ps.filt)
+cat(sprintf("\nFiltering complete: %d -> %d ASVs (removed %d total, %.1f%%)\n",
+            n_start, n_end, n_start - n_end,
+            100 * (n_start - n_end) / n_start))
+saveRDS(ps.filt, file.path(dada2_rds_dir, "13_ps_filt_pre_metadata.rds"))
+# Optional fast restart (uncomment if this step is too slow):
+# ps.filt <- readRDS(file.path(dada2_rds_dir, "13_ps_filt_pre_metadata.rds"))
+
+#' 
+#' > **Why each filter matters:**
+#' >
+#' > | Filter | Target | Risk if skipped |
+#' > |--------|--------|-----------------|
+#' > | Prevalence | Singletons, rare artifacts | Inflated richness, spurious DA hits |
+#' > | Mitochondria/Chloroplast | Host organellar DNA | Inflated diversity, wrong kingdom |
+#' > | No Phylum | Unclassifiable sequences | Noise in taxonomic summaries, uninterpretable results |
+#' >
+#' > Always report the number of ASVs removed at each step in your methods section.
+#' > Large removals at any step may indicate upstream problems (e.g., many
+#' > Mitochondria suggests host contamination; many no-Phylum suggests poor
+#' > sequence quality or an inappropriate reference database).
+#' 
+#' ### Add sample metadata and finalize
+#' 
+## ----add-metadata-------------------------------------------------------------
+ws_chunk_begin("add-metadata")
+# Read metadata table and align it to the DADA2 sample IDs from samplesheet.
+metadata <- read.csv(metadata_path, stringsAsFactors = FALSE, check.names = FALSE)
+stopifnot(all(c("Sample_ID", "Treatment", "Negative") %in% colnames(metadata)))
+metadata$Sample_ID <- normalize_sample_id(metadata$Sample_ID)
+
+# Match metadata rows to the exact sample order currently present in ps.filt.
+sample_ids_ps <- normalize_sample_id(phyloseq::sample_names(ps.filt))
+missing_ids <- setdiff(sample_ids_ps, metadata$Sample_ID)
+if (length(missing_ids) > 0) {
+  stop("Metadata is missing Sample_ID values for: ", paste(missing_ids, collapse = ", "))
+}
+metadata <- metadata[match(sample_ids_ps, metadata$Sample_ID), ]
+rownames(metadata) <- metadata$Sample_ID
+
+# Recreate control flags in case this chunk is run independently.
+metadata$is_kit_blank <- grepl("^N[0-9]+$", metadata$Sample_ID) | metadata$Treatment == "blank"
+metadata$is_water_blank <- grepl("^H2O", metadata$Sample_ID) | metadata$Treatment == "H2O"
+metadata$is_mock_control <- grepl("^MOCK", metadata$Sample_ID) | tolower(metadata$Treatment) == "mock"
+metadata$is_inoculum_control <- tolower(metadata$Treatment) == "inoculum"
+metadata$is_negative <- metadata$Negative %in% c(TRUE, "TRUE", "True", "true", 1, "1") |
+  metadata$is_kit_blank | metadata$is_water_blank
+metadata$is_control_any <- metadata$is_negative | metadata$is_mock_control | metadata$is_inoculum_control
+metadata$Treatment <- as.factor(metadata$Treatment)
+if ("Hive" %in% colnames(metadata)) metadata$Hive <- as.factor(metadata$Hive)
+if ("Box" %in% colnames(metadata)) metadata$Box <- as.factor(metadata$Box)
+
+# Attach metadata to the phyloseq object.
+phyloseq::sample_data(ps.filt) <- phyloseq::sample_data(metadata)
+
+# Remove control samples before downstream ecological comparisons.
+sample_meta_df <- data.frame(phyloseq::sample_data(ps.filt), check.names = FALSE)
+control_flags <- sample_meta_df$is_control_any
+ps.filt <- phyloseq::prune_samples(!control_flags, ps.filt)
+cat("Samples retained for biological analyses:", phyloseq::nsamples(ps.filt), "\n")
+saveRDS(ps.filt, file.path(dada2_rds_dir, "14_ps_filt_final.rds"))
+# Optional fast restart (uncomment if this step is too slow):
+# ps.filt <- readRDS(file.path(dada2_rds_dir, "14_ps_filt_final.rds"))
+sample_meta_df <- data.frame(phyloseq::sample_data(ps.filt), check.names = FALSE)
+utils::write.csv(
+  sample_meta_df,
+  file.path(dada2_tbl_dir, "03_sample_metadata_after_control_filter.csv"),
+  row.names = TRUE
+)
+
+# Explore the final phyloseq object — it now contains three linked components:
+# 1) The ASV count table (otu_table)
+# 2) The taxonomy assignments (tax_table)
+# 3) The sample metadata (sample_data)
+ps.filt
+cat("\n--- OTU table preview (first 5 samples x first 5 ASVs) ---\n")
+phyloseq::otu_table(ps.filt)[1:5, 1:5]
+cat("\n--- Taxonomy table preview (first 6 ASVs) ---\n")
+head(phyloseq::tax_table(ps.filt))
+cat("\n--- Sample data preview (first 6 samples) ---\n")
+head(phyloseq::sample_data(ps.filt))
+
+#' 
+#' > **Congratulations!** You now have a fully processed phyloseq object ready for
+#' > ecological analysis. This is the end product of Part 1. In a real analysis,
+#' > you would save this object with `saveRDS(ps.filt, "my_phyloseq.rds")`.
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' # PART 2: From Phyloseq to Biological Insights {.tabset}
+#' 
+## ----set-part2-figure-path, include=FALSE-------------------------------------
+ws_chunk_begin("set-part2-figure-path")
+# Route Part 2 figures to Results/MicrobiomeAnalysis/Figures
+knitr::opts_chunk$set(fig.path = file.path(microbiome_fig_dir, "fig-"))
+
+#' 
+#' We now shift from data processing to **biological analysis**. Starting from a
+#' phyloseq object, we will ask three progressively specific questions about our
+#' microbial communities:
+#' 
+#' 1. **Alpha diversity:** How diverse is each sample, and do groups differ?
+#' 2. **Beta diversity:** Do overall community structures differ between groups?
+#' 3. **Differential abundance:** Which specific taxa drive those differences?
+#' 
+#' ### Setup for Part 2
+#' 
+#' There are many valid ways to explore and analyze microbiome data, and your
+#' choice of tools should match your biological question and study design. A common
+#' foundation in R is the **phyloseq** package. In Part 1, we used DADA2 outputs
+#' (ASV/OTU table, taxonomy table, and sample metadata) to build a phyloseq object,
+#' which serves as a unified data structure for downstream analysis.
+#' 
+#' Many newer workflows leverage phyloseq objects directly, including packages such
+#' as **microViz**, **microbiome**, **vegan** and methods that integrate through phyloseq
+#' objects (for example **DESeq2** and **ANCOM-BC** workflows). In this tutorial,
+#' we emphasize **microViz** because it is user friendly and acts as a practical
+#' wrapper around common microbiome analysis and visualization steps.
+#' 
+## ----load-libraries-part2-----------------------------------------------------
+ws_chunk_begin("load-libraries-part2")
+library(phyloseq)     # Microbiome data structure and manipulation
+library(vegan)        # Ecological statistics: PERMANOVA, beta-dispersion, ordination
+library(ggplot2)      # Plotting and data visualization
+library(RColorBrewer) # Color palettes (Dark2 prioritized for discrete groups)
+library(tidyverse)    # Data wrangling (dplyr, tidyr, etc.)
+library(data.table)   # Fast data manipulation (used in the differential abundance section)
+library(microViz)     # Helper tools for working with phyloseq metadata and microbiome visual summaries
+
+# Load a pre-built phyloseq object for Part 2.
+# By default, we reuse ps.filt from Part 1 to keep sample IDs and metadata aligned.
+if (exists("ps.filt")) {
+  bee_ps <- ps.filt
+} else {
+  stop("`ps.filt` not found. Run Part 1 first (through 'add-metadata').")
+}
+# Optional fast restart (uncomment if this step is too slow):
+# bee_ps <- readRDS(file.path(microbiome_rds_dir, "01_bee_ps_start.rds"))
+
+# Fix tax_table issues once at the start of Part 2 so downstream microViz tools
+# (e.g., tax_agg / tax_top / comp_barplot) do not fail on missing/uninformative taxa.
+bee_ps <- bee_ps %>%
+  microViz::tax_fix()
+
+# Ensure categorical variables are stored as factors rather than plain text.
+# R uses factors for grouping in statistical tests and for controlling the
+# order of categories in plots.
+bee_meta <- data.frame(phyloseq::sample_data(bee_ps), check.names = FALSE)
+bee_meta$Treatment <- as.factor(bee_meta$Treatment)
+if ("Hive" %in% colnames(bee_meta)) {
+  bee_meta$Hive <- as.factor(bee_meta$Hive)
+}
+phyloseq::sample_data(bee_ps) <- phyloseq::sample_data(bee_meta)
+
+# Print a summary of the phyloseq object: number of samples, ASVs, and metadata columns
+bee_ps
+saveRDS(bee_ps, file.path(microbiome_rds_dir, "01_bee_ps_start.rds"))
+
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Data Exploration: Composition Overview
+#' 
+#' Before running any statistical tests, we should explore our data visually. This
+#' helps identify obvious patterns, potential outliers, and sequencing depth issues.
+#' 
+#' ### Sequencing depth
+#' 
+#' Uneven sequencing depth across samples can bias diversity estimates. Samples with
+#' very few reads should be removed.
+#' 
+## ----sequencing-depth, fig.height=4-------------------------------------------
+ws_chunk_begin("sequencing-depth")
+# sample_sums() calculates the total number of reads per sample.
+# Large differences in sequencing depth between samples can bias diversity
+# estimates (samples with more reads tend to detect more taxa).
+depth <- phyloseq::sample_sums(bee_ps)
+
+# summary() gives min, max, median, and quartiles of the depth distribution
+cat("Sequencing depth summary:\n")
+summary(depth)
+
+# Create a data frame for ggplot (ggplot2 requires data frames, not named vectors)
+depth_df <- data.frame(
+  sample = names(depth),        # Sample names
+  depth  = as.numeric(depth)    # Read counts per sample
+)
+
+# Add treatment labels using an explicit sample-ID join (robust to unnamed vectors).
+depth_meta <- data.frame(phyloseq::sample_data(bee_ps), check.names = FALSE) %>%
+  tibble::rownames_to_column("sample") %>%
+  dplyr::select(Treatment, sample)
+depth_df <- depth_df %>%
+  dplyr::left_join(depth_meta, by = "sample") %>%
+  dplyr::arrange(Treatment, depth, sample) %>%
+  dplyr::mutate(sample_order = factor(sample, levels = sample))
+
+# Create a horizontal bar chart showing the depth of each sample, sorted from
+# lowest to highest. This makes it easy to spot outlier samples with very few reads.
+ggplot2::ggplot(depth_df, ggplot2::aes(x = depth, y = sample_order)) +
+  ggplot2::geom_bar(
+    stat = "identity",
+    fill = RColorBrewer::brewer.pal(8, "Dark2")[2]
+  ) +  # Bar height = read count
+  # Optional exercise: uncomment to compare sequencing depth distributions by treatment.
+  # ggplot2::facet_grid(. ~ Treatment, scales = "free_x") +
+  ggplot2::coord_flip() +  # Flip axes so sample names are readable on the y-axis
+  ggplot2::labs(x = "Sample", y = "Read count", title = "Sequencing Depth per Sample") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1))
+
+
+#' 
+#' ### Normalization overview
+#' 
+#' Raw count data cannot be directly compared across samples with different
+#' sequencing depths. Common normalization strategies include:
+#' 
+#' | Method | Approach | Best for |
+#' |--------|----------|----------|
+#' | **Rarefaction** | Subsample to equal depth | Alpha/beta diversity |
+#' | **Relative abundance** | Convert to proportions | Composition visualization |
+#' | **CSS** | Cumulative sum scaling | General comparison |
+#' | **DESeq2 VST** | Variance-stabilizing transform | Differential abundance |
+#' 
+#' For diversity analyses, we will use **rarefied data**. For differential
+#' abundance, methods like DESeq2 handle normalization internally.
+#' 
+#' ### Composition barplots
+#' 
+#' Stacked barplots provide a quick visual overview of which taxa dominate each
+#' sample or group.
+#' 
+#' The first barplot shows **relative abundance**: each sample bar sums to 100%,
+#' so it highlights proportional differences in community composition.
+#' 
+## ----composition-barplot-relative, fig.height=6, fig.width=10-----------------
+ws_chunk_begin("composition-barplot-relative")
+# microViz composition workflow:
+# - aggregate to Genus
+# - display top 8 genera + Other
+bee_genus <- bee_ps %>%
+  microViz::tax_agg(rank = "Genus")
+saveRDS(bee_genus, file.path(microbiome_rds_dir, "03_bee_genus.rds"))
+# Optional fast restart (uncomment if this step is too slow):
+# bee_genus <- readRDS(file.path(microbiome_rds_dir, "03_bee_genus.rds"))
+
+top_genera <- microViz::tax_top(bee_genus, n = 8, rank = "Genus")
+genus_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Dark2"))(length(top_genera))
+names(genus_palette) <- top_genera
+genus_palette["Other"] <- "grey90"
+
+bee_genus %>%
+  microViz::comp_barplot(
+    tax_level = "Genus",
+    n_taxa = 8,
+    other_name = "Other",
+    merge_other = TRUE,
+    palette = genus_palette,
+    facet_by = "Treatment",
+    sample_order = "asis",
+    bar_outline_colour = "black"
+  ) +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 30, hjust = 1, size = 9),  # Rotate sample labels
+    legend.text = ggplot2::element_text(size = 8),                          # Smaller legend text
+    legend.key.size = ggplot2::unit(0.4, "cm")
+  ) +
+  ggplot2::labs(
+    x = "Sample",
+    y = "Relative Abundance",
+    title = "Relative Abundance of Top 8 Genera (+ Other)"
+  )
+
+
+#' 
+#' > **For your own analyses, consider:** Compare the relative-abundance and absolute-abundance
+#' > composition plots below. Which taxa appear similarly dominant in both views,
+#' > and which change once total copy number is considered?
+#' 
+#' The next barplot shows an **absolute abundance proxy** at genus level by scaling
+#' relative composition with per-sample total microbial load (`CopyNum_norm`).
+#' 
+## ----composition-barplot-absolute, fig.height=6, fig.width=10-----------------
+ws_chunk_begin("composition-barplot-absolute")
+
+# Genus-level absolute abundance proxy:
+# CopyNum_norm already stores sample-level absolute microbial load (normalized by gut cells).
+# Here we distribute that total load across genera using each sample's genus composition.
+# This does NOT re-estimate sample total abundance; it allocates the measured total to taxa.
+copy_df <- data.frame(phyloseq::sample_data(bee_ps), check.names = FALSE) %>%
+  tibble::rownames_to_column("Sample") %>%
+  dplyr::mutate(
+    total_copy = dplyr::coalesce(
+      suppressWarnings(as.numeric(CopyNum_norm)),
+      suppressWarnings(as.numeric(CopyNum))
+    )
+  ) %>% 
+  dplyr::select(Sample, Treatment, total_copy)
+
+if (all(is.na(copy_df$total_copy))) {
+  warning("CopyNum / CopyNum_norm not found; skipping absolute abundance composition plot.")
+} else {
+  bee_genus_rel <- bee_genus %>%
+    microViz::tax_transform(trans = "compositional")
+
+  rel_genus_df <- phyloseq::psmelt(bee_genus_rel) %>%
+    dplyr::mutate(
+      Sample = as.character(Sample),
+      Genus = dplyr::coalesce(as.character(Genus), "Unclassified"),
+      Genus_plot = dplyr::if_else(Genus %in% top_genera, Genus, "Other")
+    ) %>%
+    dplyr::group_by(Sample, Treatment, Genus_plot) %>%
+    dplyr::summarise(rel_abundance = sum(Abundance), .groups = "drop")
+
+  comp_abs_df <- rel_genus_df %>%
+    dplyr::left_join(copy_df %>% dplyr::select(Sample, total_copy), by = "Sample") %>%
+    dplyr::mutate(
+      abs_abundance = rel_abundance * total_copy,
+      Sample = factor(Sample, levels = phyloseq::sample_names(bee_genus)),
+      Genus_plot = factor(Genus_plot, levels = c(top_genera, "Other"))
+    )
+
+  p_abs <- ggplot2::ggplot(comp_abs_df, ggplot2::aes(x = Sample, y = abs_abundance, fill = Genus_plot)) +
+    ggplot2::geom_col(width = 0.9, color = "black", linewidth = 0.1) +
+    ggplot2::facet_wrap(~ Treatment, scales = "free_x", nrow = 1) +
+    ggplot2::scale_fill_manual(
+      values = genus_palette,
+      breaks = c(top_genera, "Other"),
+      name = "Genus"
+    ) +
+    ggplot2::scale_y_continuous(
+      labels = scales::label_number(scale_cut = scales::cut_short_scale())
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = 30, hjust = 1, size = 9),
+      legend.text = ggplot2::element_text(size = 8),
+      legend.key.size = ggplot2::unit(0.4, "cm")
+    ) +
+    ggplot2::labs(
+      x = "Sample",
+      y = "Genus-level abundance scaled by sample total load",
+      title = "Top 8 Genera Scaled by Sample Absolute Load (+ Other)"
+    )
+  print(p_abs)
+}
+
+#' 
+#' Even when relative-abundance profiles look similar, absolute-abundance profiles
+#' can differ because samples may carry very different **total microbial loads**.
+#' Relative abundance answers "what fraction of the community is this taxon?",
+#' while absolute abundance answers "how many copies of this taxon are present?"
+#' These are complementary, not interchangeable, views.
+#' 
+#' > **Interpreting composition plots:** These are descriptive, not statistical.
+#' > Look for dominant taxa and obvious shifts between groups. Any patterns you
+#' > observe must be confirmed with statistical tests below.
+#' >
+#' > **For your own analyses, consider:** Modify the composition workflow to use a
+#' > different taxonomic rank (for example, `Phylum` or `Genus` instead of
+#' > `Family`). How does the visual interpretation change when you zoom out
+#' > (Phylum) versus zoom in (Genus/ASV)?
+#' > [TODO: Add dataset-specific examples of expected dominant taxa if known.]
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Alpha Diversity: Within-Sample Diversity
+#' 
+#' **Alpha diversity** measures the diversity *within* a single sample. Different
+#' metrics capture different facets of community structure:
+#' 
+#' | Metric | Question | Sensitive to |
+#' |--------|----------|-------------|
+#' | **Observed** | "How many taxa are present?" | Rare taxa, sequencing depth |
+#' | **Shannon (H')** | "How evenly distributed are taxa?" | Both richness and evenness |
+#' | **Inverse Simpson (1/D)** | "How concentrated is abundance?" | Dominant taxa |
+#' 
+#' - **Observed richness** simply counts distinct ASVs. A sample with 50 ASVs has
+#'   higher Observed than one with 30, regardless of their abundances.
+#' 
+#' - **Shannon index**: H' = -Σ(p~i~ × ln(p~i~)), where p~i~ is the proportion of
+#'   species *i*. A community with 5 species at equal abundance
+#'   (H' ≈ 1.6) has higher Shannon than one where a single species dominates
+#'   (H' ≈ 1.2). Typical range for microbial communities: 0--5.
+#' 
+#' - **Inverse Simpson**: 1/D where D = Σ(p~i~^2^). Represents the probability
+#'   that two randomly drawn individuals belong to different species. Higher values
+#'   = more diverse. Less sensitive to rare taxa than Shannon.
+#' 
+#' ### Calculate and visualize alpha diversity
+#' 
+#' This plot compares alpha diversity distributions between treatments for three
+#' indices (Observed, Shannon, Inverse Simpson), with each point representing one sample.
+#' 
+## ----alpha-diversity, fig.height=5, fig.width=10------------------------------
+ws_chunk_begin("alpha-diversity")
+# microViz workflow for alpha diversity:
+# - do not filter taxa before calculating alpha diversity
+# - calculate richness/diversity directly on phyloseq, then read from sample_data
+alpha_ps <- bee_ps %>%
+  microViz::ps_calc_richness(rank = "unique", index = "observed", varname = "Observed") %>%
+  microViz::ps_calc_diversity(rank = "unique", index = "shannon", varname = "Shannon") %>%
+  microViz::ps_calc_diversity(rank = "unique", index = "inverse_simpson", varname = "InvSimpson")
+
+# Pull the calculated metrics + grouping variable from sample metadata.
+alpha_div <- alpha_ps %>%
+  microViz::samdat_tbl() %>%
+  dplyr::transmute(
+    sample = .sample_name,
+    Treatment = as.character(Treatment),
+    Observed = as.numeric(Observed),
+    Shannon = as.numeric(Shannon),
+    InvSimpson = as.numeric(InvSimpson)
+  )
+
+# Fail early if sample names do not align between richness output and metadata.
+if (any(is.na(alpha_div$Treatment))) {
+  stop(
+    sprintf(
+      "Treatment assignment failed for %d sample(s). Check sample IDs in bee_ps.",
+      sum(is.na(alpha_div$Treatment))
+    )
+  )
+}
+
+# Reshape data from "wide" format (one column per metric) to "long" format
+# (one row per sample-metric combination). This is needed for ggplot's facet_wrap().
+# pivot_longer() stacks the three metric columns into two columns:
+#   "metric" (which index) and "value" (the diversity score)
+alpha_long <- alpha_div %>%
+  tidyr::pivot_longer(
+    cols      = c(Observed, Shannon, InvSimpson),  # Columns to stack
+    names_to  = "metric",    # New column for the metric name
+    values_to = "value"      # New column for the diversity value
+  )
+saveRDS(alpha_div, file.path(microbiome_rds_dir, "04_alpha_div.rds"))
+saveRDS(alpha_long, file.path(microbiome_rds_dir, "05_alpha_long.rds"))
+utils::write.csv(alpha_div, file.path(microbiome_tbl_dir, "01_alpha_diversity_table.csv"), row.names = FALSE)
+utils::write.csv(alpha_long, file.path(microbiome_tbl_dir, "02_alpha_diversity_long.csv"), row.names = FALSE)
+# Optional fast restart (uncomment if this step is too slow):
+# alpha_div <- readRDS(file.path(microbiome_rds_dir, "04_alpha_div.rds"))
+# alpha_long <- readRDS(file.path(microbiome_rds_dir, "05_alpha_long.rds"))
+
+# Create a boxplot with individual data points overlaid for each diversity metric.
+# facet_wrap() creates a separate panel for each metric, each with its own y-scale.
+ggplot2::ggplot(alpha_long, ggplot2::aes(x = Treatment, y = value, fill = Treatment)) +
+  ggplot2::geom_boxplot(width = 0.6, outlier.shape = NA, alpha = 0.7) +  # Box = median + quartiles
+  ggplot2::geom_jitter(width = 0.15, size = 2, alpha = 0.6) +  # Individual samples as dots
+  ggplot2::scale_fill_brewer(palette = "Dark2") +
+  ggplot2::facet_wrap(~ metric, scales = "free_y") +  # Separate panel per metric
+  ggplot2::theme_minimal(base_size = 13) +
+  ggplot2::labs(
+    x     = "Treatment",
+    y     = "Diversity Value",
+    title = "Alpha Diversity by Treatment",
+    fill  = "Treatment"
+  ) +
+  ggplot2::theme(legend.position = "bottom")
+
+#' 
+#' ### Statistical testing
+#' 
+#' We use **non-parametric tests** because diversity indices often have non-normal
+#' distributions and our sample sizes are relatively small.
+#' 
+#' Test rationale in this section:
+#' 
+#' - **Kruskal-Wallis** is the omnibus test: "Does alpha diversity differ across
+#'   treatment groups at all?"
+#' - **Pairwise Wilcoxon** is the follow-up test: "Which specific group pairs
+#'   differ?" (with FDR correction for multiple comparisons).
+#' 
+## ----alpha-stats--------------------------------------------------------------
+ws_chunk_begin("alpha-stats")
+# Kruskal-Wallis test: a non-parametric test for comparing 3+ groups.
+# Unlike ANOVA, it does not assume the data follows a normal distribution —
+# important because diversity indices are often skewed.
+# The formula "metric ~ group" tests whether the metric differs across groups.
+# A small p-value (< 0.05) indicates at least one group is significantly different.
+alpha_div$Treatment <- droplevels(as.factor(alpha_div$Treatment))
+for (metric in c("Observed", "Shannon", "InvSimpson")) {
+  metric_df <- data.frame(
+    value = alpha_div[[metric]],
+    Treatment = alpha_div$Treatment
+  )
+  metric_df <- metric_df[stats::complete.cases(metric_df), , drop = FALSE]
+  if (length(unique(metric_df$Treatment)) < 2) {
+    cat(sprintf("%s: skipped (fewer than 2 treatment groups after filtering)\n", metric))
+    next
+  }
+  kw <- stats::kruskal.test(
+    value ~ Treatment, data = metric_df  # Test: diversity metric ~ treatment group
+  )
+  cat(sprintf("%s: Kruskal-Wallis chi-squared = %.2f, p = %.4f\n",
+              metric, kw$statistic, kw$p.value))
+}
+
+#' 
+## ----alpha-pairwise-----------------------------------------------------------
+ws_chunk_begin("alpha-pairwise")
+# If the Kruskal-Wallis test is significant, it tells us "at least one group
+# differs" but not WHICH groups. Pairwise Wilcoxon tests compare every pair
+# of groups (e.g., Group A vs. Group B, Group A vs. Group C, Group B vs. Group C).
+# p.adjust.method = "fdr" corrects for multiple comparisons — when testing
+# many pairs, some will appear significant by chance. FDR controls this.
+cat("\nPairwise Wilcoxon tests for alpha diversity metrics (FDR-adjusted)\n")
+if (length(unique(stats::na.omit(alpha_div$Treatment))) < 2) {
+  cat("Skipping pairwise Wilcoxon: fewer than 2 treatment groups available.\n")
+} else {
+  alpha_metrics <- c("Observed", "Shannon", "InvSimpson")
+
+  pw_tbl_list <- lapply(alpha_metrics, function(metric_name) {
+    metric_df <- data.frame(
+      value = alpha_div[[metric_name]],
+      Treatment = alpha_div$Treatment
+    )
+    metric_df <- metric_df[stats::complete.cases(metric_df), , drop = FALSE]
+
+    if (length(unique(metric_df$Treatment)) < 2) {
+      return(NULL)
+    }
+
+    pw_metric <- stats::pairwise.wilcox.test(
+      metric_df$value,
+      metric_df$Treatment,
+      p.adjust.method = "fdr"
+    )
+
+    pw_metric_tbl <- pw_metric$p.value %>%
+      as.table() %>%
+      as.data.frame(stringsAsFactors = FALSE) %>%
+      dplyr::rename(
+        group_1 = Var1,
+        group_2 = Var2,
+        p_value_fdr = Freq
+      ) %>%
+      dplyr::filter(!is.na(p_value_fdr)) %>%
+      dplyr::mutate(metric = metric_name)
+
+    if (nrow(pw_metric_tbl) == 0) {
+      return(NULL)
+    }
+
+    pw_metric_tbl
+  })
+
+  pw_all_tbl <- dplyr::bind_rows(pw_tbl_list)
+
+  if (nrow(pw_all_tbl) == 0) {
+    cat("No valid pairwise comparisons after filtering.\n")
+  } else {
+    pw_all_tbl <- pw_all_tbl %>%
+      dplyr::mutate(
+        significant = dplyr::case_when(
+          p_value_fdr < 0.001 ~ "***",
+          p_value_fdr < 0.01  ~ "**",
+          p_value_fdr < 0.05  ~ "*",
+          TRUE                ~ "ns"
+        ),
+        p_value_fdr_display = dplyr::case_when(
+          p_value_fdr == 0 ~ "< 1e-16",
+          TRUE ~ formatC(p_value_fdr, format = "e", digits = 2)
+        )
+      ) %>%
+      dplyr::arrange(metric, p_value_fdr) %>%
+      dplyr::select(metric, group_1, group_2, p_value_fdr_display, significant)
+
+    gt::gt(pw_all_tbl) %>%
+      gt::cols_label(
+        metric = "Metric",
+        group_1 = "Group 1",
+        group_2 = "Group 2",
+        p_value_fdr_display = "FDR-adjusted p-value",
+        significant = "Significance"
+      ) %>%
+      gt::tab_header(
+        title = "Pairwise Wilcoxon Results",
+        subtitle = "Observed, Shannon, and Inverse Simpson alpha diversity metrics"
+      )
+  }
+}
+
+#' 
+#' > **Interpreting alpha diversity results:**
+#' >
+#' > - A significant difference in **Observed** richness means one group has
+#' >   detectably more/fewer taxa.
+#' > - A significant difference in **Shannon** indicates unequal evenness---one
+#' >   group's community may be dominated by fewer taxa.
+#' > - A significant difference in **Inverse Simpson** suggests differences in
+#' >   dominance structure; lower values indicate communities dominated by fewer
+#' >   taxa, while higher values indicate more even communities.
+#' > - If a test is **not significant**, the data do not provide strong evidence
+#' >   of a between-treatment difference for that metric (Observed, Shannon, or
+#' >   Inverse Simpson) under the current sample size and variability.
+#' > - Non-significant does **not** prove groups are identical---it can also
+#' >   reflect small effect sizes, high within-group dispersion, or limited power.
+#' > - Reduced alpha diversity is commonly observed in disease states ("dysbiosis")
+#' >   but is not universal and should always be interpreted in the context of the
+#' >   biological system.
+#' 
+#' > **For your own analyses, consider:**
+#' >
+#' > - These alpha-diversity tests are based on **relative abundance** data.
+#' >   How might your conclusions change if you instead compared diversity using
+#' >   **absolute abundance** (e.g., ASV counts scaled by `CopyNum_norm`)?
+#' > - How might your results differ if diversity/statistics were computed at a
+#' >   different taxonomic level (ASV vs Genus vs Family)?
+#' > - Which biological question is best matched to each level of comparison?
+#' 
+#' > **Model choice note for your own analyses:**
+#' >
+#' > - The tests above assume samples are independent. If your design includes
+#' >   repeated sampling of the same individual, technical/biological replicates,
+#' >   or clustering within hives/nests, that assumption is violated.
+#' > - In those cases, consider a **linear mixed-effects model** (or generalized
+#' >   mixed model), with fixed effects for your treatment variables and random
+#' >   effects for grouping factors (for example: bee ID, hive/nest, batch, or
+#' >   sampling time structure).
+#' > - Mixed-effects models are useful when you need to estimate treatment effects
+#' >   while accounting for non-independence and hierarchical study design.
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Beta Diversity: Between-Sample Diversity
+#' 
+#' **Beta diversity** measures how different microbial communities are *between*
+#' samples. This involves two steps: (1) computing a distance matrix, and (2)
+#' testing whether groups differ significantly.
+#' 
+#' ### Distance metrics
+#' 
+#' | Metric | Data type | Considers |
+#' |--------|-----------|-----------|
+#' | **Bray-Curtis** | Abundance | Shared composition, weighted toward abundant taxa |
+#' | **Canberra** | Abundance | Relative differences, with stronger influence from low-abundance taxa |
+#' | **UniFrac (unweighted)** | Presence/absence + tree | Shared evolutionary history |
+#' | **UniFrac (weighted)** | Abundance + tree | Abundance-weighted evolutionary history |
+#' 
+#' **Bray-Curtis** is widely used in amplicon studies. It generally puts more weight
+#' on differences among abundant taxa.
+#' 
+#' **Canberra** emphasizes proportional differences in low-abundance/rarer taxa,
+#' which can reveal shifts that are less visible with Bray-Curtis.
+#' 
+#' **UniFrac** incorporates phylogenetic relationships between taxa. Two communities
+#' sharing closely related taxa will have lower UniFrac distance than two communities
+#' sharing distantly related taxa, even if the number of shared taxa is the same.
+#' Requires a phylogenetic tree in the phyloseq object.
+#' 
+#' ### PCoA ordination
+#' 
+#' **Principal Coordinates Analysis (PCoA)** projects the high-dimensional distance
+#' matrix onto 2--3 axes that capture the most variation. It is the standard
+#' visualization for beta diversity.
+#' 
+#' - Points = samples
+#' - Points closer together = more similar communities
+#' - Axis labels show what percentage of total variation each axis captures
+#' 
+## ----pcoa-ordination, fig.height=5, fig.width=10------------------------------
+ws_chunk_begin("pcoa-ordination")
+# microViz workflow: keep ASV-level data ("unique"), then calculate distance + PCoA.
+beta_ps <- bee_ps %>%
+  microViz::tax_transform(trans = "identity", rank = "unique")
+
+distance_map <- c(
+  bray = "Bray-Curtis",
+  canberra = "Canberra"
+)
+
+pcoa_plot_list <- lapply(names(distance_map), function(dist_name) {
+  beta_ps %>%
+    microViz::dist_calc(dist = dist_name) %>%
+    microViz::ord_calc(method = "PCoA") %>%
+    microViz::ord_plot(color = "Treatment", alpha = 0.8, size = 2.8) +
+    ggplot2::stat_ellipse(ggplot2::aes(color = Treatment), type = "norm", linetype = 2, level = 0.95) +
+    ggplot2::scale_color_brewer(palette = "Dark2") +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::labs(title = paste0("PCoA: ", distance_map[[dist_name]], " Distance")) +
+    ggplot2::theme(legend.position = "bottom")
+})
+
+saveRDS(
+  list(beta_ps = beta_ps, distance_map = distance_map),
+  file.path(microbiome_rds_dir, "06_beta_distance_setup.rds")
+)
+
+patchwork::wrap_plots(pcoa_plot_list, nrow = 1, guides = "collect")
+
+#' 
+#' > **Caution:** PCoA is a *visualization* tool, not a statistical test. Apparent
+#' > visual separation must be confirmed with PERMANOVA (below). Human eyes are
+#' > very good at finding patterns that may not be statistically significant.
+#' 
+#' ### PERMANOVA: Testing for group differences
+#' 
+#' **PERMANOVA** (Permutational Multivariate Analysis of Variance) tests whether
+#' group centroids (mean positions in multivariate space) differ significantly. It
+#' works by:
+#' 
+#' Why this test here: beta diversity is a **distance matrix** (multivariate, not
+#' single-response data), so PERMANOVA is appropriate for testing treatment-level
+#' community composition differences in that space.
+#' 
+#' 1. Computing a distance matrix (here: Bray-Curtis and Canberra)
+#' 2. Partitioning variation into between-group and within-group components
+#' 3. Permuting group labels thousands of times to generate a null distribution
+#' 4. Asking: is the observed between-group variation more extreme than expected
+#'    by chance?
+#' 
+## ----permanova----------------------------------------------------------------
+ws_chunk_begin("permanova")
+# Recreate setup if this chunk is run independently.
+if (!exists("beta_ps") || !exists("distance_map")) {
+  beta_ps <- bee_ps %>%
+    microViz::tax_transform(trans = "identity", rank = "unique")
+  distance_map <- c(
+    bray = "Bray-Curtis",
+    canberra = "Canberra"
+  )
+}
+
+# Run PERMANOVA for each distance with microViz::dist_permanova.
+permanova_tbl_list <- lapply(names(distance_map), function(dist_name) {
+  perm_psx <- beta_ps %>%
+    microViz::dist_calc(dist = dist_name) %>%
+    microViz::dist_permanova(
+      variables = "Treatment",
+      n_perms = 9999,
+      seed = 42,
+      verbose = FALSE
+    )
+
+  perm_df <- as.data.frame(microViz::perm_get(perm_psx))
+  term_row <- dplyr::case_when(
+    "Treatment" %in% rownames(perm_df) ~ "Treatment",
+    "Model" %in% rownames(perm_df) ~ "Model",
+    TRUE ~ rownames(perm_df)[which(!is.na(perm_df$F))[1]]
+  )
+
+  data.frame(
+    distance = distance_map[[dist_name]],
+    term = term_row,
+    r2 = perm_df[term_row, "R2"],
+    pseudo_f = perm_df[term_row, "F"],
+    p_value = perm_df[term_row, "Pr(>F)"],
+    stringsAsFactors = FALSE
+  )
+})
+
+permanova_tbl <- dplyr::bind_rows(permanova_tbl_list) %>%
+  dplyr::mutate(
+    p_value_display = dplyr::case_when(
+      p_value == 0 ~ "< 1e-16",
+      TRUE ~ formatC(p_value, format = "e", digits = 2)
+    ),
+    significant = dplyr::case_when(
+      p_value < 0.001 ~ "***",
+      p_value < 0.01 ~ "**",
+      p_value < 0.05 ~ "*",
+      TRUE ~ "ns"
+    )
+  )
+
+saveRDS(permanova_tbl, file.path(microbiome_rds_dir, "07_permanova_results_bray_canberra.rds"))
+utils::write.csv(permanova_tbl, file.path(microbiome_tbl_dir, "03_permanova_bray_canberra.csv"), row.names = FALSE)
+
+permanova_tbl %>%
+  dplyr::select(distance, r2, pseudo_f, p_value_display, significant) %>%
+  gt::gt() %>%
+  gt::fmt_number(columns = c(r2, pseudo_f), decimals = 3) %>%
+  gt::cols_label(
+    distance = "Distance Metric",
+    r2 = "R²",
+    pseudo_f = "Pseudo-F",
+    p_value_display = "p-value",
+    significant = "Significance"
+  ) %>%
+  gt::tab_header(
+    title = "PERMANOVA Results by Distance Metric",
+    subtitle = "microViz::dist_permanova with Treatment as predictor"
+  )
+
+#' 
+#' Key values to report:
+#' 
+#' - **R^2^**: Proportion of total community variation explained by the grouping
+#'   variable. R^2^ = 0.30 means bee type explains 30% of community variation.
+#' - **Pseudo-F**: The test statistic (ratio of between-group to within-group
+#'   variation). Larger = stronger group separation.
+#' - **p-value**: Probability of observing this much group separation by chance.
+#' 
+#' ### Betadisper: Checking the assumptions
+#' 
+#' PERMANOVA is sensitive to *both* location differences (centroids) and dispersion
+#' differences (spread). A group that is simply more variable could produce a
+#' significant PERMANOVA even if its centroid is in the same place.
+#' 
+#' Why this test here: **betadisper + permutest** checks whether within-group
+#' dispersion is comparable across treatments, helping distinguish true centroid
+#' shifts from differences in group spread.
+#' 
+#' `betadisper()` tests whether group dispersions (distances of samples to their
+#' group centroid) are homogeneous. If dispersions are equal, the PERMANOVA result
+#' can be confidently attributed to centroid differences.
+#' 
+## ----betadisper---------------------------------------------------------------
+ws_chunk_begin("betadisper")
+# Recreate setup if this chunk is run independently.
+if (!exists("beta_ps") || !exists("distance_map")) {
+  beta_ps <- bee_ps %>%
+    microViz::tax_transform(trans = "identity", rank = "unique")
+  distance_map <- c(
+    bray = "Bray-Curtis",
+    canberra = "Canberra"
+  )
+}
+
+# microViz wrapper for betadisper on each distance matrix.
+dispersion_tbl_list <- lapply(names(distance_map), function(dist_name) {
+  bdisp_psx <- beta_ps %>%
+    microViz::dist_calc(dist = dist_name) %>%
+    microViz::dist_bdisp(variables = "Treatment", verbose = FALSE)
+
+  bdisp_obj <- microViz::bdisp_get(bdisp_psx)$Treatment
+  anova_df <- as.data.frame(bdisp_obj$anova)
+  group_row <- rownames(anova_df)[1]
+  group_means <- tapply(
+    X = bdisp_obj$model$distances,
+    INDEX = bdisp_obj$model$group,
+    FUN = mean,
+    na.rm = TRUE
+  )
+  group_means_text <- paste(
+    paste0(names(group_means), ": ", formatC(group_means, format = "f", digits = 3)),
+    collapse = "; "
+  )
+
+  data.frame(
+    distance = distance_map[[dist_name]],
+    f_value = anova_df[group_row, "F value"],
+    p_value = anova_df[group_row, "Pr(>F)"],
+    group_mean_distance = group_means_text,
+    stringsAsFactors = FALSE
+  )
+})
+
+dispersion_tbl <- dplyr::bind_rows(dispersion_tbl_list) %>%
+  dplyr::mutate(
+    p_value_display = dplyr::case_when(
+      p_value == 0 ~ "< 1e-16",
+      TRUE ~ formatC(p_value, format = "e", digits = 2)
+    ),
+    significant = dplyr::case_when(
+      p_value < 0.001 ~ "***",
+      p_value < 0.01 ~ "**",
+      p_value < 0.05 ~ "*",
+      TRUE ~ "ns"
+    )
+  )
+
+saveRDS(dispersion_tbl, file.path(microbiome_rds_dir, "08_dispersion_results_bray_canberra.rds"))
+utils::write.csv(dispersion_tbl, file.path(microbiome_tbl_dir, "04_betadisper_bray_canberra.csv"), row.names = FALSE)
+
+dispersion_tbl %>%
+  dplyr::select(distance, f_value, p_value_display, significant, group_mean_distance) %>%
+  gt::gt() %>%
+  gt::fmt_number(columns = f_value, decimals = 3) %>%
+  gt::cols_label(
+    distance = "Distance Metric",
+    f_value = "Dispersion F",
+    p_value_display = "p-value",
+    significant = "Significance",
+    group_mean_distance = "Mean Distance to Group Centroid"
+  ) %>%
+  gt::tab_header(
+    title = "Dispersion (betadisper) Results by Distance Metric",
+    subtitle = "microViz::dist_bdisp on Treatment groups"
+  )
+
+#' 
+#' > **Interpretation framework:**
+#' >
+#' > - PERMANOVA significant + betadisper *not* significant → Groups have
+#' >   **different community compositions** (true centroid difference).
+#' > - PERMANOVA significant + betadisper significant → Interpret with caution.
+#' >   Groups may differ in variability rather than (or in addition to) composition.
+#' > - PERMANOVA *not* significant → No evidence of compositional differences
+#' >   between groups.
+#' 
+## ----beta-interpretation------------------------------------------------------
+ws_chunk_begin("beta-interpretation")
+# Summarize PERMANOVA and dispersion checks for each distance metric.
+cat("\n=== Beta Diversity Summary ===\n")
+for (i in seq_len(nrow(permanova_tbl))) {
+  perm_row <- permanova_tbl[i, , drop = FALSE]
+  disp_row <- dispersion_tbl[dispersion_tbl$distance == perm_row$distance, , drop = FALSE]
+  cat(sprintf(
+    "%s: Treatment explains %.1f%% of variation (R² = %.3f, pseudo-F = %.2f, p = %.4g). ",
+    perm_row$distance,
+    perm_row$r2 * 100,
+    perm_row$r2,
+    perm_row$pseudo_f,
+    perm_row$p_value
+  ))
+  if (nrow(disp_row) == 1) {
+    cat(sprintf(
+      "Dispersion test: F = %.2f, p = %.4g.\n",
+      disp_row$f_value,
+      disp_row$p_value
+    ))
+  } else {
+    cat("Dispersion test not available.\n")
+  }
+}
+
+#' 
+#' If results differ between Bray-Curtis and Canberra, consider *which part of the
+#' community is changing*: Bray-Curtis differences usually point to shifts in
+#' dominant taxa, while Canberra differences often highlight changes in rarer taxa.
+#' Ecologically, disagreement between metrics can indicate that treatment effects
+#' are concentrated in either the core community or the rare biosphere, rather
+#' than uniformly across all taxa.
+#' 
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Differential Abundance: Which Taxa Differ?
+#' 
+#' Alpha and beta diversity tell us that communities differ *overall*. Differential
+#' abundance (DA) analysis identifies the **specific taxa** driving those
+#' differences---the biologically actionable output.
+#' 
+#' ### Setup and prevalence filtering
+#' 
+#' Before testing hundreds of taxa, we remove low-prevalence ASVs (present in
+#' <10% of samples). This reduces noise and the multiple-testing burden.
+#' 
+## ----da-setup-----------------------------------------------------------------
+ws_chunk_begin("da-setup")
+# For differential abundance testing, we need the data in a flat table format
+# (one big table with both metadata and ASV counts) rather than a phyloseq object.
+
+# Extract the ASV count matrix from phyloseq and convert to a plain R matrix.
+# as(..., "matrix") coerces the phyloseq otu_table into a standard matrix.
+otu_mat <- as(phyloseq::otu_table(bee_ps), "matrix")
+
+# Ensure samples are rows and ASVs are columns (transpose if needed)
+if (phyloseq::taxa_are_rows(bee_ps)) otu_mat <- t(otu_mat)
+
+# Convert to data.table format for fast operations.
+# keep.rownames = "Sample" preserves the sample names as a column called "Sample".
+otu_dt   <- data.table::as.data.table(otu_mat, keep.rownames = "Sample")
+meta_dt  <- data.table::as.data.table(
+  as(phyloseq::sample_data(bee_ps), "data.frame"),  # Extract metadata as data frame
+  keep.rownames = "Sample"                            # Keep sample names as a column
+)
+taxa_ids <- phyloseq::taxa_names(bee_ps)  # All ASV names in the dataset
+
+# Join metadata and ASV counts into a single wide table (one row per sample).
+# on = "Sample" tells data.table to merge on the shared "Sample" column.
+full_dt <- meta_dt[otu_dt, on = "Sample"]
+
+# Prevalence filter: remove rare ASVs before testing to reduce noise.
+# colSums(otu_mat > 0) counts how many samples each ASV appears in (presence/absence).
+# Dividing by n_samples gives the fraction of samples (0 to 1).
+# We keep only ASVs present in at least 10% of samples.
+n_samples <- nrow(otu_dt)
+prevalence_pct <- colSums(otu_mat > 0) / n_samples
+keep_for_da <- names(prevalence_pct[prevalence_pct >= 0.10])
+saveRDS(
+  list(otu_mat = otu_mat, otu_dt = otu_dt, meta_dt = meta_dt, full_dt = full_dt, keep_for_da = keep_for_da),
+  file.path(microbiome_rds_dir, "10_da_setup_objects.rds")
+)
+# Optional fast restart (uncomment if this step is too slow):
+# da_setup <- readRDS(file.path(microbiome_rds_dir, "10_da_setup_objects.rds"))
+# otu_mat <- da_setup$otu_mat; otu_dt <- da_setup$otu_dt; meta_dt <- da_setup$meta_dt
+# full_dt <- da_setup$full_dt; keep_for_da <- da_setup$keep_for_da
+
+cat("ASVs before prevalence filter:", length(taxa_ids), "\n")
+cat("ASVs after prevalence filter (>= 10%):", length(keep_for_da), "\n")
+
+#' 
+#' ### DESeq2 differential abundance per taxon
+#' 
+#' For each taxon, we test whether abundance differs between groups using
+#' **DESeq2** (negative binomial GLM). This approach is generally preferred for
+#' amplicon count data because it models mean-variance relationships explicitly and
+#' handles library-size normalization internally.
+#' 
+#' Why this test here: this section performs many **two-group, per-taxon**
+#' comparisons on count data; DESeq2 is robust for overdispersed counts and
+#' returns effect sizes (log2 fold changes) with FDR-adjusted p-values.
+#' 
+## ----da-deseq2----------------------------------------------------------------
+ws_chunk_begin("da-deseq2")
+# For a clean two-group comparison, subset to two groups of interest.
+# Here we compare the first two treatment levels alphabetically.
+treatment_levels <- sort(unique(as.character(full_dt$Treatment)))
+if (length(treatment_levels) < 2) {
+  stop("Need at least two Treatment levels for differential abundance testing.")
+}
+comparison_groups <- treatment_levels[1:2]
+cat("DA comparison groups:", paste(comparison_groups, collapse = " vs "), "\n")
+da_dt <- full_dt[Treatment %in% comparison_groups]
+
+if (!requireNamespace("DESeq2", quietly = TRUE)) {
+  stop("Package 'DESeq2' is required for this section. Install via BiocManager::install('DESeq2').")
+}
+
+# Build a phyloseq object for the two-group comparison and prevalence-filtered taxa.
+ps_da <- phyloseq::prune_samples(
+  as.character(phyloseq::sample_data(bee_ps)$Treatment) %in% comparison_groups,
+  bee_ps
+)
+ps_da <- phyloseq::prune_taxa(phyloseq::taxa_names(ps_da) %in% keep_for_da, ps_da)
+
+# Ensure Treatment is an ordered factor so the contrast direction is explicit.
+ps_da_meta <- data.frame(phyloseq::sample_data(ps_da), check.names = FALSE)
+ps_da_meta$Treatment <- factor(as.character(ps_da_meta$Treatment), levels = comparison_groups)
+phyloseq::sample_data(ps_da) <- phyloseq::sample_data(ps_da_meta)
+
+# Convert to DESeq2 and run Wald tests with settings commonly used for
+# zero-heavy amplicon count data.
+deseq_dds <- phyloseq::phyloseq_to_deseq2(ps_da, ~ Treatment)
+deseq_dds <- DESeq2::DESeq(
+  deseq_dds,
+  test = "Wald",
+  fitType = "local",
+  sfType = "poscounts",
+  quiet = TRUE
+)
+
+# Contrast direction: positive log2FC means enriched in comparison_groups[2]
+# relative to comparison_groups[1].
+deseq_res <- DESeq2::results(
+  deseq_dds,
+  contrast = c("Treatment", comparison_groups[2], comparison_groups[1]),
+  alpha = 0.05
+)
+
+deseq_df <- as.data.frame(deseq_res) %>%
+  tibble::rownames_to_column("taxon") %>%
+  dplyr::rename(p_value = pvalue, p_adj = padj) %>%
+  dplyr::arrange(p_adj)
+
+# Significant taxa after FDR correction.
+sig_taxa <- deseq_df %>%
+  dplyr::filter(!is.na(p_adj), p_adj <= 0.05)
+
+cat("Significant taxa (DESeq2 FDR <= 0.05):", nrow(sig_taxa), "of", nrow(deseq_df), "\n\n")
+saveRDS(
+  list(
+    deseq_dds = deseq_dds,
+    deseq_df = deseq_df,
+    sig_taxa = sig_taxa,
+    comparison_groups = comparison_groups,
+    da_dt = da_dt
+  ),
+  file.path(microbiome_rds_dir, "11_da_deseq2_results.rds")
+)
+utils::write.csv(deseq_df, file.path(microbiome_tbl_dir, "04_da_deseq2_all_taxa.csv"), row.names = FALSE)
+utils::write.csv(sig_taxa, file.path(microbiome_tbl_dir, "05_da_significant_taxa.csv"), row.names = FALSE)
+# Optional fast restart (uncomment if this step is too slow):
+# da_deseq2 <- readRDS(file.path(microbiome_rds_dir, "11_da_deseq2_results.rds"))
+# deseq_dds <- da_deseq2$deseq_dds; deseq_df <- da_deseq2$deseq_df
+# sig_taxa <- da_deseq2$sig_taxa; comparison_groups <- da_deseq2$comparison_groups
+# da_dt <- da_deseq2$da_dt
+
+# For the significant ASVs, look up their taxonomy (Family, Genus) so we
+# know WHAT organisms are driving the difference, not just ASV IDs.
+if (nrow(sig_taxa) > 0) {
+  tax_info <- as.data.frame(phyloseq::tax_table(bee_ps))  # Full taxonomy table
+  sig_taxa_info <- sig_taxa %>%
+    dplyr::left_join(
+      tax_info %>% tibble::rownames_to_column("taxon"),  # Add "taxon" column for joining
+      by = "taxon"
+    ) %>%
+    dplyr::select(taxon, Family, Genus, log2FoldChange, lfcSE, p_value, p_adj) %>%  # Keep relevant columns
+    dplyr::arrange(p_adj)  # Sort by significance (most significant first)
+  utils::write.csv(
+    sig_taxa_info,
+    file.path(microbiome_tbl_dir, "06_da_significant_taxa_with_taxonomy.csv"),
+    row.names = FALSE
+  )
+  # Reuse the same genus palette used in composition barplots.
+  genus_color_map <- genus_palette
+  default_genus_color <- unname(genus_color_map["Other"])
+  if (length(default_genus_color) == 0 || is.na(default_genus_color)) {
+    default_genus_color <- "grey90"
+  }
+
+  sig_taxa_gt_df <- sig_taxa_info %>%
+    dplyr::mutate(
+      p_value_display = dplyr::case_when(
+        p_value == 0 ~ "< 1e-16",
+        TRUE ~ formatC(p_value, format = "e", digits = 2)
+      ),
+      p_adj_display = dplyr::case_when(
+        p_adj == 0 ~ "< 1e-16",
+        TRUE ~ formatC(p_adj, format = "e", digits = 2)
+      ),
+      Genus_color = dplyr::case_when(
+        !is.na(Genus) & Genus %in% names(genus_color_map) ~ unname(genus_color_map[Genus]),
+        TRUE ~ default_genus_color
+      )
+    ) %>%
+    dplyr::select(
+      taxon, Family, Genus, log2FoldChange, lfcSE, p_value_display, p_adj_display, Genus_color
+    )
+
+  gt_tbl <- sig_taxa_gt_df %>%
+    gt::gt() %>%
+    gt::cols_label(
+      taxon = "Taxon",
+      Family = "Family",
+      Genus = "Genus",
+      log2FoldChange = "log2 Fold Change",
+      lfcSE = "LFC SE",
+      p_value_display = "Raw p-value",
+      p_adj_display = "FDR-adjusted p-value"
+    ) %>%
+    gt::data_color(
+      columns = Genus,
+      fn = function(x) {
+        dplyr::case_when(
+          !is.na(x) & x %in% names(genus_color_map) ~ unname(genus_color_map[x]),
+          TRUE ~ default_genus_color
+        )
+      },
+      apply_to = "fill",
+      autocolor_text = TRUE
+    ) %>%
+    gt::cols_hide(columns = Genus_color) %>%
+    gt::tab_header(
+      title = "Significant Differentially Abundant Taxa",
+      subtitle = paste0(
+        "DESeq2 Wald tests (",
+        comparison_groups[2],
+        " vs ",
+        comparison_groups[1],
+        "); positive log2FC = enriched in ",
+        comparison_groups[2]
+      )
+    )
+
+  gt_tbl
+}
+
+#' 
+#' ### Visualize differentially abundant taxa
+#' 
+#' This figure shows sample-level abundances for **DESeq2-significant ASVs**.  
+#' Each panel is one significant ASV, points are individual samples, and the red
+#' error bars indicate the bootstrapped mean and 95% CI within each treatment.
+#' Values are DESeq2 size-factor-normalized counts, so panels are consistent with
+#' the differential abundance model.
+#' 
+## ----da-visualization, fig.height=6, fig.width=10-----------------------------
+ws_chunk_begin("da-visualization")
+if (nrow(sig_taxa) > 0) {
+  # Get the list of significant ASV names to plot
+  plot_taxa <- sig_taxa$taxon
+
+  # Use DESeq2 size-factor normalized counts so visualization is consistent
+  # with the DESeq2 differential abundance model.
+  norm_counts <- DESeq2::counts(deseq_dds, normalized = TRUE)
+  norm_counts <- norm_counts[plot_taxa, , drop = FALSE]
+
+  # Convert normalized count matrix (taxa x samples) to long format.
+  # One row = one sample-taxon abundance observation.
+  norm_counts_long <- as.data.frame(norm_counts) %>%
+    tibble::rownames_to_column("taxon") %>%
+    tidyr::pivot_longer(
+      cols      = -taxon,
+      names_to  = "Sample",
+      values_to = "norm_abundance"
+    )
+
+  # Sample-level metadata needed for grouping on the x-axis.
+  sample_groups <- data.frame(phyloseq::sample_data(ps_da), check.names = FALSE) %>%
+    tibble::rownames_to_column("Sample") %>%
+    dplyr::select(Sample, Treatment)
+
+  # Create unique plotting labels per ASV so taxa are not collapsed when several
+  # ASVs share the same genus/family label.
+  tax_labels <- as.data.frame(phyloseq::tax_table(bee_ps)) %>%
+    tibble::rownames_to_column("taxon") %>%
+    dplyr::mutate(
+      tax_label = dplyr::coalesce(as.character(Genus), as.character(Family), taxon),
+      label = paste0(taxon, " | ", tax_label)
+    ) %>%
+    dplyr::select(taxon, tax_label, label)
+
+  # Merge sample metadata and taxonomy labels into plotting data.
+  da_plot_dt <- norm_counts_long %>%
+    dplyr::left_join(sample_groups, by = "Sample") %>%
+    dplyr::left_join(tax_labels, by = "taxon")
+  saveRDS(da_plot_dt, file.path(microbiome_rds_dir, "12_da_plot_dt.rds"))
+  # Optional fast restart (uncomment if this step is too slow):
+  # da_plot_dt <- readRDS(file.path(microbiome_rds_dir, "12_da_plot_dt.rds"))
+
+  # Create a jitter plot with one panel per significant ASV.
+  # y uses DESeq2 normalized counts for consistency with the DA model.
+  ggplot2::ggplot(da_plot_dt, ggplot2::aes(x = Treatment, y = norm_abundance, color = Treatment)) +
+    ggplot2::geom_jitter(width = 0.2, alpha = 0.6, size = 1.5) +  # Individual sample dots
+    ggplot2::stat_summary(
+      fun.data = "mean_se",       # Mean +/- standard error (no extra package dependency)
+      color    = "red",
+      geom     = "errorbar",      # Display as error bars
+      width    = 0.5
+    ) +
+    ggplot2::scale_color_brewer(palette = "Dark2") +
+    ggplot2::facet_wrap(~ label, scales = "free_y") +  # One panel per ASV, independent y-axes
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::labs(
+      x     = "Treatment",
+      y     = "DESeq2 normalized abundance",
+      title = paste0(
+        "DESeq2 Significant Taxa: ",
+        comparison_groups[2],
+        " vs ",
+        comparison_groups[1]
+      )
+    ) +
+    ggplot2::theme(strip.text = ggplot2::element_text(size = 8))  # Smaller panel titles
+}
+
+#' 
+#' ### Heatmap of differential taxa
+#' 
+#' This heatmap summarizes **only the significant ASVs** from DESeq2.  
+#' Each row is one significant ASV and each column is a treatment group (CL, MD).  
+#' Tile color shows the **mean DESeq2-normalized abundance** of that ASV within each
+#' treatment, displayed on a `log(mean + 1)` scale to make both low- and
+#' high-abundance taxa easier to compare visually.
+#' 
+## ----da-heatmap, fig.height=5, fig.width=6------------------------------------
+ws_chunk_begin("da-heatmap")
+if (nrow(sig_taxa) > 0) {
+  # Calculate mean DESeq2-normalized abundance of each significant ASV
+  # within each treatment. Keep ASV-resolved labels to match the DESeq2 table.
+  # group_by() splits the data by taxon label and treatment; summarize() computes
+  # the mean for each group. .groups = "drop" removes the grouping afterward.
+  heatmap_dt <- da_plot_dt %>%
+    dplyr::group_by(taxon, label, tax_label, Treatment) %>%
+    dplyr::summarize(mean_abund = mean(norm_abundance), .groups = "drop")
+
+  # Order rows by overall abundance (across both treatments), not alphabetically.
+  # Highest-abundance taxa are shown at the top of the y-axis.
+  label_levels <- heatmap_dt %>%
+    dplyr::group_by(label) %>%
+    dplyr::summarise(overall_mean_abund = mean(mean_abund, na.rm = TRUE), .groups = "drop") %>%
+    dplyr::arrange(dplyr::desc(overall_mean_abund)) %>%
+    dplyr::pull(label)
+
+  heatmap_dt <- heatmap_dt %>%
+    dplyr::mutate(label = factor(label, levels = rev(label_levels)))
+  saveRDS(heatmap_dt, file.path(microbiome_rds_dir, "13_heatmap_dt.rds"))
+  # Optional fast restart (uncomment if this step is too slow):
+  # heatmap_dt <- readRDS(file.path(microbiome_rds_dir, "13_heatmap_dt.rds"))
+
+  # Create a heatmap: rows = taxa, columns = treatments, color = mean
+  # DESeq2-normalized abundance.
+  # geom_tile() draws colored rectangles; log1p() applies log(x + 1) to compress
+  # the range (microbiome counts span orders of magnitude, so log-scaling
+  # prevents a few high-abundance taxa from washing out all the color variation).
+  # Because log1p(mean_abund) is always >= 0, use a sequential (not diverging)
+  # color scale.
+  ggplot2::ggplot(heatmap_dt, ggplot2::aes(x = Treatment, y = label)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = log1p(mean_abund)), color = "black") +  # Colored tiles with black borders
+    ggplot2::scale_fill_gradient(
+      low  = "grey95",         # Low abundance
+      high = "steelblue4",     # High abundance
+      name = "log(mean + 1)"   # Legend title
+    ) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::labs(
+      x     = "Treatment",
+      y     = "",
+      title = "Mean DESeq2-Normalized Abundance of Significant ASVs"
+    ) +
+    ggplot2::coord_fixed(ratio = 0.5)  # Keep tiles roughly square-shaped
+}
+
+#' 
+#' > **A note on DA methods:** There are many approaches to differential abundance
+#' > analysis, and different methods can yield different results (Nearing et al.,
+#' > 2022, *Nature Communications*). Other commonly used tools include:
+#' >
+#' > - **DESeq2**: Negative binomial GLM; handles normalization internally; good
+#' >   for complex experimental designs.
+#' > - **ANCOM-BC**: Explicitly addresses compositionality of microbiome data.
+#' > - **MaAsLin2**: Flexible for multivariable models and mixed effects.
+#' >
+#' > Best practice: run 2+ methods and focus on concordant results. Always evaluate
+#' > effect size and biological plausibility alongside statistical significance.
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' ## Wrap-Up: The Complete Picture
+#' 
+#' We have walked through the full microbiome analysis pipeline:
+#' 
+#' ```
+#' Raw reads → Quality filtering → DADA2 denoising → ASV table → Taxonomy
+#'     → Phyloseq → Composition → Alpha diversity → Beta diversity → DA
+#' ```
+#' 
+#' **Each analysis answers a different biological question:**
+#' 
+#' | Analysis | Question | Key Output |
+#' |----------|----------|------------|
+#' | Composition plots | What taxa are present and at what proportions? | Stacked barplots |
+#' | Alpha diversity | How diverse is each sample, and do groups differ? | Shannon, Observed, tests |
+#' | Beta diversity + PERMANOVA | Do overall community structures differ? | PCoA, R², p-value |
+#' | Differential abundance | Which specific taxa drive the differences? | Significant taxa list |
+#' 
+#' ### Resources for further learning
+#' 
+#' - **DADA2 tutorial**: <https://benjjneb.github.io/dada2/tutorial.html>
+#' - **phyloseq documentation**: <https://joey711.github.io/phyloseq/>
+#' - **microViz package**: <https://david-barnett.github.io/microViz/>
+#' - **DA method comparison** (Nearing et al., 2022): <https://doi.org/10.1038/s41467-022-28034-z>
+#' - **SILVA database**: <https://www.arb-silva.de/>
+#' 
+#' ------------------------------------------------------------------------
+#' 
+#' *Workshop tutorial created by Michael Sieler. Last updated: `r Sys.Date()`.*
+
+
+# ---- End-of-run testing / timing summary ----
+ws_required_objects <- c(
+  "ps.filt", "bee_ps", "permanova_tbl", "dispersion_tbl", "deseq_df", "sig_taxa"
+)
+ws_missing_objects <- setdiff(ws_required_objects, ls())
+if (length(ws_missing_objects) > 0) {
+  ws_log(paste0("Object check: MISSING -> ", paste(ws_missing_objects, collapse = ", ")))
+} else {
+  ws_log("Object check: all required objects found")
+}
+
+ws_expected_outputs <- c(
+  file.path(dada2_rds_dir, "01_filterAndTrim_out.rds"),
+  file.path(dada2_rds_dir, "02_errF.rds"),
+  file.path(dada2_rds_dir, "03_errR.rds"),
+  file.path(dada2_rds_dir, "04_dadaFs.rds"),
+  file.path(dada2_rds_dir, "05_dadaRs.rds"),
+  file.path(dada2_rds_dir, "06_mergers.rds"),
+  file.path(dada2_rds_dir, "07_seqtab.rds"),
+  file.path(dada2_rds_dir, "08_seqtab_nochim.rds"),
+  file.path(dada2_rds_dir, "09_taxa.rds"),
+  file.path(dada2_rds_dir, "10_ps_initial.rds"),
+  file.path(dada2_rds_dir, "11_asv_name_map.rds"),
+  file.path(dada2_rds_dir, "12_ps_pruned.rds"),
+  file.path(dada2_rds_dir, "13_ps_filt_pre_metadata.rds"),
+  file.path(dada2_rds_dir, "14_ps_filt_final.rds"),
+  file.path(dada2_tbl_dir, "01_filterAndTrim_summary.csv"),
+  file.path(dada2_tbl_dir, "02_read_tracking_table.csv"),
+  file.path(dada2_tbl_dir, "03_sample_metadata_after_control_filter.csv"),
+  file.path(dada2_tbl_dir, "04_mock_accuracy_summary.csv"),
+  file.path(dada2_tbl_dir, "05_mock_asvs_with_taxonomy_and_match_flag.csv"),
+  file.path(microbiome_rds_dir, "01_bee_ps_start.rds"),
+  file.path(microbiome_rds_dir, "03_bee_genus.rds"),
+  file.path(microbiome_rds_dir, "04_alpha_div.rds"),
+  file.path(microbiome_rds_dir, "05_alpha_long.rds"),
+  file.path(microbiome_rds_dir, "06_beta_distance_setup.rds"),
+  file.path(microbiome_rds_dir, "07_permanova_results_bray_canberra.rds"),
+  file.path(microbiome_rds_dir, "08_dispersion_results_bray_canberra.rds"),
+  file.path(microbiome_rds_dir, "10_da_setup_objects.rds"),
+  file.path(microbiome_rds_dir, "11_da_deseq2_results.rds"),
+  file.path(microbiome_rds_dir, "12_da_plot_dt.rds"),
+  file.path(microbiome_rds_dir, "13_heatmap_dt.rds"),
+  file.path(microbiome_tbl_dir, "01_alpha_diversity_table.csv"),
+  file.path(microbiome_tbl_dir, "02_alpha_diversity_long.csv"),
+  file.path(microbiome_tbl_dir, "03_permanova_bray_canberra.csv"),
+  file.path(microbiome_tbl_dir, "04_betadisper_bray_canberra.csv"),
+  file.path(microbiome_tbl_dir, "04_da_deseq2_all_taxa.csv"),
+  file.path(microbiome_tbl_dir, "05_da_significant_taxa.csv"),
+  file.path(microbiome_tbl_dir, "06_da_significant_taxa_with_taxonomy.csv")
+)
+
+ws_missing_outputs <- ws_expected_outputs[!file.exists(ws_expected_outputs)]
+if (length(ws_missing_outputs) > 0) {
+  ws_log(paste0("Output check: missing ", length(ws_missing_outputs), " expected files"))
+  ws_log(paste0("Missing outputs: ", paste(ws_missing_outputs, collapse = " | ")))
+} else {
+  ws_log(paste0("Output check: all ", length(ws_expected_outputs), " expected files are present"))
+}
+
+
+ws_chunk_end(status = "OK")
+if (nrow(ws_chunk_timings) > 0) {
+  utils::write.csv(ws_chunk_timings, ws_chunk_timing_file, row.names = FALSE)
+  ws_log(paste0("Chunk timing file: ", ws_chunk_timing_file))
+
+  ws_slowest_idx <- order(ws_chunk_timings$elapsed_sec, decreasing = TRUE)
+  ws_top_n <- min(5, nrow(ws_chunk_timings))
+  ws_log("Top chunk runtimes (seconds):")
+  for (i in seq_len(ws_top_n)) {
+    row <- ws_chunk_timings[ws_slowest_idx[i], , drop = FALSE]
+    ws_log(paste0("  ", row$chunk, ": ", sprintf("%.2f", row$elapsed_sec), " [", row$status, "]"))
+  }
+}
+
+ws_script_end_time <- Sys.time()
+ws_total_elapsed_sec <- as.numeric(difftime(ws_script_end_time, ws_script_start_time, units = "secs"))
+ws_log(paste0("Run finished: ", format(ws_script_end_time, "%Y-%m-%d %H:%M:%S")))
+ws_log(paste0("Total elapsed seconds: ", sprintf("%.2f", ws_total_elapsed_sec)))
+ws_log(paste0("Log file: ", ws_log_file))
